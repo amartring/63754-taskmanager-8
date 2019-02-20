@@ -253,7 +253,7 @@ const onFiltersClick = () => {
 };
 
 const updateTasks = () => {
-  const filters = filterContainer.querySelectorAll(`.filter__label`);
+  const filters = filterContainer.querySelectorAll(`.filter__input`);
   filters.forEach((item) => {
     item.addEventListener(`click`, onFiltersClick);
   });
