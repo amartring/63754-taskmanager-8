@@ -55,11 +55,11 @@ const FilterAmount = {
 const filterContainer = document.querySelector(`.filter`);
 const tasksContainer = document.querySelector(`.board__tasks`);
 
-const getRandomNumber = function (min, max) {
+const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-const getFilterElement = function (name, isDisabled, isChecked = false) {
+const getFilterElement = (name, isDisabled, isChecked = false) => {
   const amount = getRandomNumber(FilterAmount.MIN, FilterAmount.MAX);
   return `
   <input
@@ -81,7 +81,7 @@ const getFilterElement = function (name, isDisabled, isChecked = false) {
   `;
 };
 
-const getCardElement = function (color, classList, text, isDate, date, time, isRepeat) {
+const getCardElement = (color, classList, text, isDate, date, time, isRepeat) => {
   return `
   <article class="card card--${color} ${classList ? classList.join(` `) : ``}">
     <form class="card__form" method="get">
