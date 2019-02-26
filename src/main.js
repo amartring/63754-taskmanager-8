@@ -1,6 +1,7 @@
 import {getRandomNumber} from './util.js';
-import getFilterElement from './make-filter.js';
-import getCardElement from './make-task.js';
+import makeFilter from './make-filter.js';
+import makeTask from './make-task.js';
+import getTask from './data.js';
 
 const FILTERS = [
   {
@@ -34,16 +35,6 @@ const FILTERS = [
   }
 ];
 
-const TASK = {
-  color: `yellow`,
-  classList: [`card--repeat`],
-  text: `New task № `,
-  isDate: true,
-  date: `20 February`,
-  time: `13:22 PM`,
-  isRepeat: false
-};
-
 const TasksCount = {
   MIN: 7,
   MAX: 20
@@ -53,9 +44,9 @@ const filterContainer = document.querySelector(`.filter`);
 const tasksContainer = document.querySelector(`.board__tasks`);
 
 const onFiltersClick = () => {
-  const taskCount = getRandomNumber(TasksCount.MIN, TasksCount.MAX);
+  const randomCount = getRandomNumber(TasksCount.MIN, TasksCount.MAX);
   tasksContainer.innerHTML = ``;
-  createTasks(taskCount, TASK);
+  createTasks(tasksContainer, randomCount);
 };
 
 const updateTasks = () => {
@@ -65,17 +56,17 @@ const updateTasks = () => {
   });
 };
 
-const createTasks = (count, task) => {
-  for (let i = 0; i < count; i++) {
-    tasksContainer.insertAdjacentHTML(`beforeend`,
-        getCardElement(task.color, task.classList, task.text + `${i + 1}`, task.isDate, task.date, task.time, task.isRepeat));
-  }
+const createTasks = (container, count) => {
+  container.insertAdjacentHTML(`beforeend`, new Array(count)
+    .fill(``)
+    .map(() => makeTask(getTask()))
+    .join(``));
 };
 
 FILTERS.forEach((item) => {
-  filterContainer.insertAdjacentHTML(`beforeend`, getFilterElement(item.name, item.isDisabled, item.isChecked));
+  filterContainer.insertAdjacentHTML(`beforeend`, makeFilter(item.name, item.isDisabled, item.isChecked));
 });
 
-createTasks(TasksCount.MIN, TASK);
+createTasks(tasksContainer, TasksCount.MIN);
 
 updateTasks();

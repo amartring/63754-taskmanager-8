@@ -1,6 +1,7 @@
-export default (color, classList, text, isDate, date, time, isRepeat) => {
+export default (task) => {
   return `
-  <article class="card card--${color} ${classList ? classList.join(` `) : ``}">
+  <article class="card card--${task.color}
+                  ${Object.values(task.repeatingDays).filter((item) => item).length > 0 ? ` card--repeat` : ``}">
     <form class="card__form" method="get">
       <div class="card__inner">
         <div class="card__control">
@@ -23,7 +24,7 @@ export default (color, classList, text, isDate, date, time, isRepeat) => {
 
         <div class="card__textarea-wrap">
           <label>
-            <textarea class="card__text" placeholder="Start typing your text here..." name="text">${text ? text : ``}</textarea>
+            <textarea class="card__text" placeholder="Start typing your text here..." name="text">${task.title}</textarea>
           </label>
         </div>
 
@@ -31,16 +32,16 @@ export default (color, classList, text, isDate, date, time, isRepeat) => {
           <div class="card__details">
             <div class="card__dates">
               <button class="card__date-deadline-toggle" type="button">
-                date: <span class="card__date-status">${isDate ? `yes` : `no`}</span>
+                date: <span class="card__date-status">yes</span>
               </button>
 
-              <fieldset class="card__date-deadline" ${isDate ? `` : ` disabled`}>
+              <fieldset class="card__date-deadline"}>
                 <label class="card__input-deadline-wrap">
                   <input
                     class="card__date"
                     type="text"
                     placeholder="23 September"
-                    value="${isDate ? date : ``}"
+                    value="${task.dueDate}"
                     name="date">
                 </label>
                 <label class="card__input-deadline-wrap">
@@ -48,30 +49,33 @@ export default (color, classList, text, isDate, date, time, isRepeat) => {
                     class="card__time"
                     type="text"
                     placeholder="11:15 PM"
-                    value="${isDate ? time : ``}"
+                    value=""
                     name="time">
                 </label>
               </fieldset>
 
               <button class="card__repeat-toggle" type="button">
-                repeat:<span class="card__repeat-status">${isRepeat ? `yes` : `no`}</span>
+                repeat:
+                <span class="card__repeat-status">
+                  ${Object.values(task.repeatingDays).filter((item) => item).length > 0 ? `yes` : `no`}
+                </span>
               </button>
 
-              <fieldset class="card__repeat-days" ${isRepeat ? `` : ` disabled`}>
+              <fieldset class="card__repeat-days"}>
                 <div class="card__repeat-days-inner">
-                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-mo-2" name="repeat" value="mo">
+                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-mo-2" name="repeat" value="mo" ${task.repeatingDays.Mo ? ` checked` : ``}>
                   <label class="card__repeat-day" for="repeat-mo-2">mo</label>
-                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-tu-2" name="repeat" value="tu" checked="">
+                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-tu-2" name="repeat" value="tu" ${task.repeatingDays.Tu ? ` checked` : ``}>
                   <label class="card__repeat-day" for="repeat-tu-2">tu</label>
-                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-we-2" name="repeat" value="we">
+                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-we-2" name="repeat" value="we" ${task.repeatingDays.We ? ` checked` : ``}>
                   <label class="card__repeat-day" for="repeat-we-2">we</label>
-                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-th-2" name="repeat" value="th">
+                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-th-2" name="repeat" value="th" ${task.repeatingDays.Th ? ` checked` : ``}>
                   <label class="card__repeat-day" for="repeat-th-2">th</label>
-                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-fr-2" name="repeat" value="fr" checked="">
+                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-fr-2" name="repeat" value="fr" ${task.repeatingDays.Fr ? ` checked` : ``}>
                   <label class="card__repeat-day" for="repeat-fr-2">fr</label>
-                  <input class="visually-hidden card__repeat-day-input" type="checkbox" name="repeat" value="sa" id="repeat-sa-2">
+                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-sa-2" name="repeat" value="sa" ${task.repeatingDays.Sa ? ` checked` : ``}>
                   <label class="card__repeat-day" for="repeat-sa-2">sa</label>
-                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-su-2" name="repeat" value="su" checked="">
+                  <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-su-2" name="repeat" value="su" ${task.repeatingDays.Su ? ` checked` : ``}>
                   <label class="card__repeat-day" for="repeat-su-2">su</label>
                 </div>
               </fieldset>
@@ -79,52 +83,22 @@ export default (color, classList, text, isDate, date, time, isRepeat) => {
 
             <div class="card__hashtag">
               <div class="card__hashtag-list">
-                <span class="card__hashtag-inner">
-                  <input
-                    type="hidden"
-                    name="hashtag"
-                    value="repeat"
-                    class="card__hashtag-hidden-input"
-                  />
-                  <button type="button" class="card__hashtag-name">
-                    #repeat
-                  </button>
-                  <button type="button" class="card__hashtag-delete">
-                    delete
-                  </button>
-                </span>
-
-                <span class="card__hashtag-inner">
-                  <input
-                    type="hidden"
-                    name="hashtag"
-                    value="repeat"
-                    class="card__hashtag-hidden-input"
-                  />
-                  <button type="button" class="card__hashtag-name">
-                    #cinema
-                  </button>
-                  <button type="button" class="card__hashtag-delete">
-                    delete
-                  </button>
-                </span>
-
-                <span class="card__hashtag-inner">
-                  <input
-                    type="hidden"
-                    name="hashtag"
-                    value="repeat"
-                    class="card__hashtag-hidden-input"
-                  />
-                  <button type="button" class="card__hashtag-name">
-                    #entertaiment
-                  </button>
-                  <button type="button" class="card__hashtag-delete">
-                    delete
-                  </button>
-                </span>
-              </div>
-
+                ${[...task.tags].splice(Math.floor(Math.random() * 7), Math.floor(Math.random() * 4)).map((item) => `
+                    <span class="card__hashtag-inner">
+                      <input
+                        type="hidden"
+                        name="hashtag"
+                        value="repeat"
+                        class="card__hashtag-hidden-input"
+                      />
+                      <button type="button" class="card__hashtag-name">
+                        #${item}
+                      </button>
+                      <button type="button" class="card__hashtag-delete">
+                        delete
+                      </button>
+                    </span>`)
+                  .join(``)}
               <label>
                 <input type="text" class="card__hashtag-input" name="hashtag-input" placeholder="Type new hashtag here">
               </label>
@@ -133,7 +107,7 @@ export default (color, classList, text, isDate, date, time, isRepeat) => {
 
           <label class="card__img-wrap card__img-wrap--empty">
             <input type="file" class="card__img-input visually-hidden" name="img">
-            <img src="img/add-photo.svg" alt="task picture" class="card__img">
+            <img src="${task.picture}" alt="task picture" class="card__img">
           </label>
 
           <div class="card__colors-inner">
