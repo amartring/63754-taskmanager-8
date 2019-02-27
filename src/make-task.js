@@ -1,3 +1,5 @@
+import {shuffleArray} from './util.js';
+
 export default (task) => {
   return `
   <article class="card card--${task.color}
@@ -83,7 +85,7 @@ export default (task) => {
 
             <div class="card__hashtag">
               <div class="card__hashtag-list">
-                ${[...task.tags].splice(Math.floor(Math.random() * 7), Math.floor(Math.random() * 4)).map((item) => `
+                ${shuffleArray([...task.tags]).splice(Math.floor(Math.random() * 7), Math.floor(Math.random() * 4)).map((item) => `
                     <span class="card__hashtag-inner">
                       <input
                         type="hidden"
