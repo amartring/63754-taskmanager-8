@@ -1,7 +1,9 @@
-import {getRandomNumber} from './util.js';
+// import {getRandomNumber} from './util.js';
+import task from './data.js';
+import {Task} from './task.js';
+import {TaskEdit} from './task-edit.js';
+
 import makeFilter from './make-filter.js';
-import makeTask from './make-task.js';
-import getTask from './data.js';
 
 const FILTERS = [
   {
@@ -46,27 +48,44 @@ const tasksContainer = document.querySelector(`.board__tasks`);
 const onFiltersClick = () => {
   const randomCount = getRandomNumber(TasksCount.MIN, TasksCount.MAX);
   tasksContainer.innerHTML = ``;
-  createTasks(tasksContainer, randomCount);
+  createTasks(randomCount, Task);
 };
 
-const updateTasks = () => {
-  const filters = filterContainer.querySelectorAll(`.filter__input`);
-  filters.forEach((item) => {
-    item.addEventListener(`click`, onFiltersClick);
-  });
-};
+// const updateTasks = () => {
+//   const filters = filterContainer.querySelectorAll(`.filter__input`);
+//   filters.forEach((item) => {
+//     item.addEventListener(`click`, onFiltersClick);
+//   });
+// };
 
-const createTasks = (container, count) => {
-  container.insertAdjacentHTML(`beforeend`, new Array(count)
-    .fill(``)
-    .map(() => makeTask(getTask()))
-    .join(``));
-};
+// const createTasks = (count, Obj) => {
+//   const tasksArray = new Array(count)
+//   .fill(``)
+//   .map(() => new Obj(task()));
+//   for (const item of tasksArray) {
+//     tasksContainer.appendChild(item.render());
+//   }
+// };
 
 FILTERS.forEach((item) => {
   filterContainer.insertAdjacentHTML(`beforeend`, makeFilter(item.name, item.isDisabled, item.isChecked));
 });
 
-createTasks(tasksContainer, TasksCount.MIN);
+// updateTasks();
 
-updateTasks();
+const taskComponent = new Task(task());
+const editTaskComponent = new TaskEdit(task());
+
+tasksContainer.appendChild(taskComponent.render());
+
+taskComponent.onEdit = () => {
+  editTaskComponent.render();
+  tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
+  taskComponent.unrender();
+};
+
+editTaskComponent.onSubmit = () => {
+  taskComponent.render();
+  tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
+  editTaskComponent.unrender();
+};
