@@ -1,4 +1,4 @@
-// import {getRandomNumber} from './util.js';
+import {getRandomNumber} from './util.js';
 import task from './data.js';
 import {Task} from './task.js';
 import {TaskEdit} from './task-edit.js';
@@ -45,47 +45,78 @@ const TasksCount = {
 const filterContainer = document.querySelector(`.filter`);
 const tasksContainer = document.querySelector(`.board__tasks`);
 
-const onFiltersClick = () => {
-  const randomCount = getRandomNumber(TasksCount.MIN, TasksCount.MAX);
-  tasksContainer.innerHTML = ``;
-  createTasks(randomCount, Task);
-};
-
-// const updateTasks = () => {
-//   const filters = filterContainer.querySelectorAll(`.filter__input`);
-//   filters.forEach((item) => {
-//     item.addEventListener(`click`, onFiltersClick);
-//   });
-// };
-
-// const createTasks = (count, Obj) => {
-//   const tasksArray = new Array(count)
-//   .fill(``)
-//   .map(() => new Obj(task()));
-//   for (const item of tasksArray) {
-//     tasksContainer.appendChild(item.render());
-//   }
-// };
+let datas = [];
+let taskComponents = [];
+let editTaskComponents = [];
 
 FILTERS.forEach((item) => {
   filterContainer.insertAdjacentHTML(`beforeend`, makeFilter(item.name, item.isDisabled, item.isChecked));
 });
 
-// updateTasks();
-
-const taskComponent = new Task(task());
-const editTaskComponent = new TaskEdit(task());
-
-tasksContainer.appendChild(taskComponent.render());
-
-taskComponent.onEdit = () => {
-  editTaskComponent.render();
-  tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
-  taskComponent.unrender();
+const createTasks = (count, data) => {
+  return new Array(count)
+  .fill(``)
+  .map(() => data());
 };
 
-editTaskComponent.onSubmit = () => {
-  taskComponent.render();
-  tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
-  editTaskComponent.unrender();
+const getTasksArray = (data, Constructor) => {
+  let array = [];
+  data.forEach((item) => {
+    array.push(new Constructor(item));
+  });
+  return array;
 };
+
+const renderTasks = (array) => {
+  for (const item of array) {
+    tasksContainer.appendChild(item.render());
+  }
+};
+
+const editChange = () => {
+  taskComponents.forEach((item, i) => {
+    item.onEdit = () => {
+      editTaskComponents[i].render();
+      tasksContainer.replaceChild(editTaskComponents[i].element, taskComponents[i].element);
+      taskComponents[i].unrender();
+    };
+  });
+
+  editTaskComponents.forEach((item, i) => {
+    item.onSubmit = () => {
+      taskComponents[i].render();
+      tasksContainer.replaceChild(taskComponents[i].element, editTaskComponents[i].element);
+      editTaskComponents[i].unrender();
+    };
+  });
+};
+
+const start = (count) => {
+  datas = createTasks(count, task);
+  taskComponents = getTasksArray(datas, Task);
+  editTaskComponents = getTasksArray(datas, TaskEdit);
+
+  renderTasks(taskComponents);
+  editChange();
+};
+
+const onFiltersClick = () => {
+  const randomCount = getRandomNumber(TasksCount.MIN, TasksCount.MAX);
+  tasksContainer.innerHTML = ``;
+
+  datas = createTasks(randomCount, task);
+  taskComponents = getTasksArray(datas, Task);
+  editTaskComponents = getTasksArray(datas, TaskEdit);
+  renderTasks(taskComponents);
+  editChange();
+};
+
+const updateTasks = () => {
+  const filters = filterContainer.querySelectorAll(`.filter__input`);
+  filters.forEach((item) => {
+    item.addEventListener(`click`, onFiltersClick);
+  });
+};
+
+start(TasksCount.MIN);
+updateTasks();
