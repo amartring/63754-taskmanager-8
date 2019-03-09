@@ -10,6 +10,8 @@ class Task {
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
 
+    this._onEditButtonClick = this._onEditButtonClick.bind(this);
+
     this._element = null;
     this._onEdit = null;
 
@@ -130,12 +132,12 @@ class Task {
 
   bind() {
     this._element.querySelector(`.card__btn--edit`)
-        .addEventListener(`click`, this._onEditButtonClick.bind(this));
+        .addEventListener(`click`, this._onEditButtonClick);
   }
 
   unbind() {
     this._element.querySelector(`.card__btn--edit`)
-        .removeEventListener(`click`, this._onEditButtonClick.bind(this));
+        .removeEventListener(`click`, this._onEditButtonClick);
   }
 
   render() {
