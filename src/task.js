@@ -60,7 +60,7 @@ class Task {
 
   get template() {
     return `
-  <article class="card card--${this._color} ${this._isRepeated ? ` card--repeat` : ``}">
+  <article class="card card--${this._color} ${this._isRepeated && ` card--repeat`}">
     <div class="card__inner">
       <div class="card__control">
         <button type="button" class="card__btn card__btn--edit">
