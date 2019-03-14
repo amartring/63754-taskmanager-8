@@ -1,8 +1,9 @@
-import {createElement} from './create-element.js';
+import {Component} from './component.js';
 import {shuffleArray} from './util.js';
 
-class TaskEdit {
+class TaskEdit extends Component {
   constructor(data) {
+    super();
     this._title = data.title;
     this._dueDate = data.dueDate;
     this._tags = data.tags;
@@ -12,13 +13,7 @@ class TaskEdit {
 
     this._onSubmitButtonClick = this._onSubmitButtonClick.bind(this);
 
-    this._element = null;
     this._onSubmit = null;
-
-    this._state = {
-      isFavorite: data.isFavorite,
-      isDone: data.isDone
-    };
   }
 
   _isRepeated() {
@@ -52,10 +47,6 @@ class TaskEdit {
 
   set onSubmit(fn) {
     this._onSubmit = fn;
-  }
-
-  get element() {
-    return this._element;
   }
 
   get template() {
@@ -196,17 +187,6 @@ class TaskEdit {
   unbind() {
     this._element.querySelector(`.card__form`)
         .removeEventListener(`submit`, this._onSubmitButtonClick);
-  }
-
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
   }
 }
 
