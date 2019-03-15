@@ -1,6 +1,6 @@
 import {createElement} from './create-element.js';
 
-class Component {
+export default class Component {
   constructor() {
     if (new.target === Component) {
       throw new Error(`Can't instantiate BaseComponent, only concrete one.`);
@@ -34,5 +34,3 @@ class Component {
     this._element = null;
   }
 }
-
-export {Component};

@@ -1,4 +1,4 @@
-import {Component} from './component.js';
+import Component from './component.js';
 import {shuffleArray} from './util.js';
 
 class Task extends Component {
