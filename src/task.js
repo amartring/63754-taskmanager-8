@@ -1,8 +1,9 @@
-import {createElement} from './create-element.js';
+import {Component} from './component.js';
 import {shuffleArray} from './util.js';
 
-class Task {
+class Task extends Component {
   constructor(data) {
+    super();
     this._title = data.title;
     this._dueDate = data.dueDate;
     this._tags = data.tags;
@@ -12,13 +13,7 @@ class Task {
 
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
 
-    this._element = null;
     this._onEdit = null;
-
-    this._state = {
-      isFavorite: data.isFavorite,
-      isDone: data.isDone
-    };
   }
 
   _isRepeated() {
@@ -54,13 +49,9 @@ class Task {
     this._onEdit = fn;
   }
 
-  get element() {
-    return this._element;
-  }
-
   get template() {
     return `
-  <article class="card card--${this._color} ${this._isRepeated ? ` card--repeat` : ``}">
+  <article class="card card--${this._color} ${this._isRepeated && ` card--repeat`}">
     <div class="card__inner">
       <div class="card__control">
         <button type="button" class="card__btn card__btn--edit">
@@ -138,17 +129,6 @@ class Task {
   unbind() {
     this._element.querySelector(`.card__btn--edit`)
         .removeEventListener(`click`, this._onEditButtonClick);
-  }
-
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
   }
 }
 

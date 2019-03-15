@@ -1,8 +1,9 @@
-import {createElement} from './create-element.js';
+import {Component} from './component.js';
 import {shuffleArray} from './util.js';
 
-class TaskEdit {
+class TaskEdit extends Component {
   constructor(data) {
+    super();
     this._title = data.title;
     this._dueDate = data.dueDate;
     this._tags = data.tags;
@@ -12,13 +13,7 @@ class TaskEdit {
 
     this._onSubmitButtonClick = this._onSubmitButtonClick.bind(this);
 
-    this._element = null;
     this._onSubmit = null;
-
-    this._state = {
-      isFavorite: data.isFavorite,
-      isDone: data.isDone
-    };
   }
 
   _isRepeated() {
@@ -54,13 +49,9 @@ class TaskEdit {
     this._onSubmit = fn;
   }
 
-  get element() {
-    return this._element;
-  }
-
   get template() {
     return `
-  <article class="card card--edit card--${this._color} ${this._isRepeated ? ` card--repeat` : ``}">
+  <article class="card card--edit card--${this._color} ${this._isRepeated && ` card--repeat`}">
     <form class="card__form" method="get">
       <div class="card__inner">
         <div class="card__control">
@@ -122,25 +113,25 @@ class TaskEdit {
               <fieldset class="card__repeat-days"}>
                 <div class="card__repeat-days-inner">
                   <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-mo-2"
-                        name="repeat" value="mo" ${this._repeatingDays.Mo ? ` checked` : ``}>
+                        name="repeat" value="mo" ${this._repeatingDays.Mo && ` checked`}>
                   <label class="card__repeat-day" for="repeat-mo-2">mo</label>
                   <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-tu-2"
-                        name="repeat" value="tu" ${this._repeatingDays.Tu ? ` checked` : ``}>
+                        name="repeat" value="tu" ${this._repeatingDays.Tu && ` checked`}>
                   <label class="card__repeat-day" for="repeat-tu-2">tu</label>
                   <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-we-2"
-                        name="repeat" value="we" ${this._repeatingDays.We ? ` checked` : ``}>
+                        name="repeat" value="we" ${this._repeatingDays.We && ` checked`}>
                   <label class="card__repeat-day" for="repeat-we-2">we</label>
                   <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-th-2"
-                        name="repeat" value="th" ${this._repeatingDays.Th ? ` checked` : ``}>
+                        name="repeat" value="th" ${this._repeatingDays.Th && ` checked`}>
                   <label class="card__repeat-day" for="repeat-th-2">th</label>
                   <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-fr-2"
-                        name="repeat" value="fr" ${this._repeatingDays.Fr ? ` checked` : ``}>
+                        name="repeat" value="fr" ${this._repeatingDays.Fr && ` checked`}>
                   <label class="card__repeat-day" for="repeat-fr-2">fr</label>
                   <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-sa-2"
-                        name="repeat" value="sa" ${this._repeatingDays.Sa ? ` checked` : ``}>
+                        name="repeat" value="sa" ${this._repeatingDays.Sa && ` checked`}>
                   <label class="card__repeat-day" for="repeat-sa-2">sa</label>
                   <input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-su-2"
-                        name="repeat" value="su" ${this._repeatingDays.Su ? ` checked` : ``}>
+                        name="repeat" value="su" ${this._repeatingDays.Su && ` checked`}>
                   <label class="card__repeat-day" for="repeat-su-2">su</label>
                 </div>
               </fieldset>
@@ -196,17 +187,6 @@ class TaskEdit {
   unbind() {
     this._element.querySelector(`.card__form`)
         .removeEventListener(`submit`, this._onSubmitButtonClick);
-  }
-
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
   }
 }
 
