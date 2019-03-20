@@ -1,7 +1,7 @@
 import {getRandomNumber} from './util.js';
 import task from './data.js';
-import {Task} from './task.js';
-import {TaskEdit} from './task-edit.js';
+import Task from './task.js';
+import TaskEdit from './task-edit.js';
 
 import makeFilter from './make-filter.js';
 
@@ -83,7 +83,14 @@ const editChange = () => {
   });
 
   editTaskComponents.forEach((item, i) => {
-    item.onSubmit = () => {
+    item.onSubmit = (newObject) => {
+      task.title = newObject.title;
+      task.tags = newObject.tags;
+      task.color = newObject.color;
+      task.repeatingDays = newObject.repeatingDays;
+      task.dueDate = newObject.dueDate;
+
+      taskComponents[i].update(task);
       taskComponents[i].render();
       tasksContainer.replaceChild(taskComponents[i].element, editTaskComponents[i].element);
       editTaskComponents[i].unrender();

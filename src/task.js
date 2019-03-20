@@ -1,7 +1,6 @@
 import Component from './component.js';
-import {shuffleArray} from './util.js';
 
-class Task extends Component {
+export default class Task extends Component {
   constructor(data) {
     super();
     this._title = data.title;
@@ -20,26 +19,6 @@ class Task extends Component {
     return Object.values(this._repeatingDays).some((item) => item === true);
   }
 
-  _getTags() {
-    const array = [...this._tags];
-    return shuffleArray(array).splice(Math.floor(Math.random() * 7), Math.floor(Math.random() * 4)).map((item) => `
-      <span class="card__hashtag-inner">
-        <input
-          type="hidden"
-          name="hashtag"
-          value="${item}"
-          class="card__hashtag-hidden-input"
-        />
-        <button type="button" class="card__hashtag-name">
-          #${item}
-        </button>
-        <button type="button" class="card__hashtag-delete">
-          delete
-        </button>
-      </span>`)
-      .join(``);
-  }
-
   _onEditButtonClick(evt) {
     evt.preventDefault();
     return typeof this._onEdit === `function` && this._onEdit();
@@ -51,7 +30,7 @@ class Task extends Component {
 
   get template() {
     return `
-  <article class="card card--${this._color} ${this._isRepeated && ` card--repeat`}">
+  <article class="card card--${this._color} ${this._isRepeated() && ` card--repeat`}">
     <div class="card__inner">
       <div class="card__control">
         <button type="button" class="card__btn card__btn--edit">
@@ -87,7 +66,7 @@ class Task extends Component {
                   class="card__date"
                   type="text"
                   placeholder="23 September"
-                  value="${this._dueDate}"
+                  value="${this._dueDate ? this._dueDate : ``}"
                   name="date">
               </label>
               <label class="card__input-deadline-wrap">
@@ -103,7 +82,22 @@ class Task extends Component {
 
           <div class="card__hashtag">
             <div class="card__hashtag-list">
-              ${this._getTags()}
+            ${Array.from(this._tags).map((tag) => `
+                <span class="card__hashtag-inner">
+                  <input
+                    type="hidden"
+                    name="hashtag"
+                    value="${tag}"
+                    class="card__hashtag-hidden-input"
+                  />
+                  <button type="button" class="card__hashtag-name">
+                    #${tag}
+                  </button>
+                  <button type="button" class="card__hashtag-delete">
+                    delete
+                  </button>
+                </span>`)
+              .join(``)}
               <label>
                 <input type="text" class="card__hashtag-input" name="hashtag-input" placeholder="Type new hashtag here">
               </label>
@@ -130,6 +124,11 @@ class Task extends Component {
     this._element.querySelector(`.card__btn--edit`)
         .removeEventListener(`click`, this._onEditButtonClick);
   }
-}
 
-export {Task};
+  update(data) {
+    this._title = data.title;
+    this._tags = data.tags;
+    this._color = data.color;
+    this._repeatingDays = data.repeatingDays;
+  }
+}
