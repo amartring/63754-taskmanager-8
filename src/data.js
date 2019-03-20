@@ -8,10 +8,8 @@ export default () => ({
     `Сделать домашку`,
     `Пройти интенсив на соточку`,
   ][Math.floor(Math.random() * 3)],
-  dueDate: [
-    moment().add(getRandomNumber(0, 7), `d`).format(`D MMMM YYYY`),
-    moment().subtract(getRandomNumber(0, 7), `d`).format(`D MMMM YYYY`),
-  ][Math.floor(Math.random() * 2)],
+  dueDate: ``,
+  dueTime: ``,
   tags: new Set([
     `keks`,
     `brainstorm`,

@@ -5,6 +5,7 @@ export default class Task extends Component {
     super();
     this._title = data.title;
     this._dueDate = data.dueDate;
+    this._dueTime = data.dueTime;
     this._tags = data.tags;
     this._picture = data.picture;
     this._color = data.color;
@@ -73,8 +74,8 @@ export default class Task extends Component {
                 <input
                   class="card__time"
                   type="text"
-                  placeholder="11:15 PM"
-                  value=""
+                  placeholder="11:15"
+                  value="${this._dueTime ? this._dueTime : ``}"
                   name="time">
               </label>
             </fieldset>
