@@ -7,7 +7,6 @@ export default class TaskEdit extends Component {
     super();
     this._title = data.title;
     this._dueDate = data.dueDate;
-    this._dueTime = data.dueTime;
     this._tags = data.tags;
     this._picture = data.picture;
     this._color = data.color;
@@ -16,8 +15,6 @@ export default class TaskEdit extends Component {
     this._onSubmitButtonClick = this._onSubmitButtonClick.bind(this);
     this._onChangeDate = this._onChangeDate.bind(this);
     this._onChangeRepeated = this._onChangeRepeated.bind(this);
-    this._onChangeDay = this._onChangeDay.bind(this);
-    this._onChangeTime = this._onChangeTime.bind(this);
 
     this._onSubmit = null;
 
@@ -31,7 +28,6 @@ export default class TaskEdit extends Component {
       color: ``,
       tags: new Set(),
       dueDate: new Date(),
-      dueTime: new Date(),
       repeatingDays: {
         'mo': false,
         'tu': false,
@@ -47,7 +43,9 @@ export default class TaskEdit extends Component {
 
     for (const pair of formData.entries()) {
       const [property, value] = pair;
-      taskEditMapper[property] && taskEditMapper[property](value);
+      if (taskEditMapper[property]) {
+        taskEditMapper[property](value);
+      }
     }
 
     return entry;
@@ -65,7 +63,9 @@ export default class TaskEdit extends Component {
     evt.preventDefault();
     const formData = new FormData(this._element.querySelector(`.card__form`));
     const newData = this._processForm(formData);
-    typeof this._onSubmit === `function` && this._onSubmit(newData);
+    if (typeof this._onSubmit === `function`) {
+      this._onSubmit(newData);
+    }
     this.update(newData);
   }
 
@@ -81,16 +81,6 @@ export default class TaskEdit extends Component {
     this.unbind();
     this._partialUpdate();
     this.bind();
-  }
-
-  _onChangeDay() {
-    this._dueDate = this._element.querySelector(`.card__date[name=date]`).value;
-    this.unbind();
-  }
-
-  _onChangeTime() {
-    this._dueTime = this._element.querySelector(`.card__time[name=time]`).value;
-    this.unbind();
   }
 
   set onSubmit(fn) {
@@ -140,7 +130,7 @@ export default class TaskEdit extends Component {
                     class="card__date"
                     type="text"
                     placeholder="23 September"
-                    value="${this._dueTime ? this._dueTime : ``}"
+                    value="${this._dueDate}"
                     name="date">
                 </label>
                 <label class="card__input-deadline-wrap">
@@ -254,10 +244,6 @@ export default class TaskEdit extends Component {
         .addEventListener(`click`, this._onChangeDate);
     this._element.querySelector(`.card__repeat-toggle`)
         .addEventListener(`click`, this._onChangeRepeated);
-    this._element.querySelector(`.card__date[name=date]`)
-        .addEventListener(`change`, this._onChangeDay);
-    this._element.querySelector(`.card__time[name=time]`)
-        .addEventListener(`change`, this._onChangeTime);
 
     if (this._state.isDate) {
       flatpickr(this._element.querySelector(`.card__date`),
@@ -286,16 +272,11 @@ export default class TaskEdit extends Component {
         .removeEventListener(`click`, this._onChangeDate);
     this._element.querySelector(`.card__repeat-toggle`)
         .removeEventListener(`click`, this._onChangeRepeated);
-    this._element.querySelector(`.card__date[name=date]`)
-        .removeEventListener(`change`, this._onChangeDay);
-    this._element.querySelector(`.card__time[name=time]`)
-        .removeEventListener(`change`, this._onChangeTime);
   }
 
   update(data) {
     this._title = data.title;
     this._dueDate = data.dueDate;
-    this._dueTime = data.dueTime;
     this._tags = data.tags;
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
@@ -314,7 +295,6 @@ export default class TaskEdit extends Component {
         target.repeatingDays[value] = true;
       },
       date: (value) => target.dueDate[value],
-      time: (value) => target.dueTime[value],
     };
   }
 }
