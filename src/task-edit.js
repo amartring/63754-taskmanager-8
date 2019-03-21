@@ -13,6 +13,7 @@ export default class TaskEdit extends Component {
     this._repeatingDays = data.repeatingDays;
 
     this._onSubmitButtonClick = this._onSubmitButtonClick.bind(this);
+    this._onChangeText = this._onChangeText.bind(this);
     this._onChangeDate = this._onChangeDate.bind(this);
     this._onChangeRepeated = this._onChangeRepeated.bind(this);
 
@@ -67,6 +68,13 @@ export default class TaskEdit extends Component {
       this._onSubmit(newData);
     }
     this.update(newData);
+  }
+
+  _onChangeText() {
+    this._title = this._element.querySelector(`.card__text`).value;
+    this.unbind();
+    this._partialUpdate();
+    this.bind();
   }
 
   _onChangeDate() {
@@ -240,6 +248,8 @@ export default class TaskEdit extends Component {
   bind() {
     this._element.querySelector(`.card__form`)
         .addEventListener(`submit`, this._onSubmitButtonClick);
+    this._element.querySelector(`.card__text`)
+        .addEventListener(`change`, this._onChangeText);
     this._element.querySelector(`.card__date-deadline-toggle`)
         .addEventListener(`click`, this._onChangeDate);
     this._element.querySelector(`.card__repeat-toggle`)
@@ -268,6 +278,8 @@ export default class TaskEdit extends Component {
   unbind() {
     this._element.querySelector(`.card__form`)
         .removeEventListener(`submit`, this._onSubmitButtonClick);
+    this._element.querySelector(`.card__text`)
+        .removeEventListener(`change`, this._onChangeText);
     this._element.querySelector(`.card__date-deadline-toggle`)
         .removeEventListener(`click`, this._onChangeDate);
     this._element.querySelector(`.card__repeat-toggle`)
