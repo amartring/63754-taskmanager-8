@@ -45,77 +45,14 @@ const TasksCount = {
 const filterContainer = document.querySelector(`.filter`);
 const tasksContainer = document.querySelector(`.board__tasks`);
 
-let datas = [];
-let taskComponents = [];
-let editTaskComponents = [];
-
 FILTERS.forEach((item) => {
   filterContainer.insertAdjacentHTML(`beforeend`, makeFilter(item.name, item.isDisabled, item.isChecked));
 });
 
-const createTasks = (count, data) => {
-  return new Array(count)
-  .fill(``)
-  .map(() => data());
-};
-
-const getTasksArray = (data, Constructor) => {
-  let array = [];
-  data.forEach((item) => {
-    array.push(new Constructor(item));
-  });
-  return array;
-};
-
-const renderTasks = (array) => {
-  for (const item of array) {
-    tasksContainer.appendChild(item.render());
-  }
-};
-
-const editChange = () => {
-  taskComponents.forEach((item, i) => {
-    item.onEdit = () => {
-      editTaskComponents[i].render();
-      tasksContainer.replaceChild(editTaskComponents[i].element, taskComponents[i].element);
-      taskComponents[i].unrender();
-    };
-  });
-
-  editTaskComponents.forEach((item, i) => {
-    item.onSubmit = (newObject) => {
-      task.title = newObject.title;
-      task.tags = newObject.tags;
-      task.color = newObject.color;
-      task.repeatingDays = newObject.repeatingDays;
-      task.dueDate = newObject.dueDate;
-
-      taskComponents[i].update(task);
-      taskComponents[i].render();
-      tasksContainer.replaceChild(taskComponents[i].element, editTaskComponents[i].element);
-      editTaskComponents[i].unrender();
-    };
-  });
-};
-
-const start = (count) => {
-  datas = createTasks(count, task);
-  taskComponents = getTasksArray(datas, Task);
-  editTaskComponents = getTasksArray(datas, TaskEdit);
-
-  renderTasks(taskComponents);
-  editChange();
-};
-
 const onFiltersClick = () => {
   const randomCount = getRandomNumber(TasksCount.MIN, TasksCount.MAX);
   tasksContainer.innerHTML = ``;
-
-  datas = createTasks(randomCount, task);
-  taskComponents = getTasksArray(datas, Task);
-  editTaskComponents = getTasksArray(datas, TaskEdit);
-  renderTasks(taskComponents);
-  editChange();
+  renderCards(createTasks(randomCount, task));
 };
 
 const updateTasks = () => {
@@ -125,5 +62,38 @@ const updateTasks = () => {
   });
 };
 
-start(TasksCount.MIN);
+const createTasks = (count, data) => {
+  return new Array(count)
+  .fill(``)
+  .map(() => data());
+};
+
+const renderCards = (data) => {
+  // const fragment = document.createDocumentFragment();
+
+  data.forEach((item) => {
+    const taskComponent = new Task(item);
+
+    taskComponent.onEdit = () => {
+      const editTaskComponent = new TaskEdit(item);
+
+      editTaskComponent.onSubmit = (newObject) => {
+        taskComponent.update(Object.assign(item, newObject));
+        taskComponent.render();
+        tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
+        editTaskComponent.unrender();
+      };
+
+      editTaskComponent.render();
+      tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
+      taskComponent.unrender();
+    };
+
+    tasksContainer.appendChild(taskComponent.render());
+  });
+
+  // tasksContainer.appendChild(fragment);
+};
+
+renderCards(createTasks(TasksCount.MIN, task));
 updateTasks();

@@ -14,7 +14,9 @@ export default class TaskEdit extends Component {
 
     this._onSubmitButtonClick = this._onSubmitButtonClick.bind(this);
     this._onChangeText = this._onChangeText.bind(this);
+    this._onChangeDateState = this._onChangeDateState.bind(this);
     this._onChangeDate = this._onChangeDate.bind(this);
+
     this._onChangeRepeated = this._onChangeRepeated.bind(this);
 
     this._onSubmit = null;
@@ -37,7 +39,7 @@ export default class TaskEdit extends Component {
         'fr': false,
         'sa': false,
         'su': false,
-      }
+      },
     };
 
     const taskEditMapper = TaskEdit.createMapper(entry);
@@ -77,8 +79,15 @@ export default class TaskEdit extends Component {
     this.bind();
   }
 
-  _onChangeDate() {
+  _onChangeDateState() {
     this._state.isDate = !this._state.isDate;
+    this.unbind();
+    this._partialUpdate();
+    this.bind();
+  }
+
+  _onChangeDate() {
+    this._dueDate = this._element.querySelector(`.card__date[name=date]`).value;
     this.unbind();
     this._partialUpdate();
     this.bind();
@@ -251,7 +260,9 @@ export default class TaskEdit extends Component {
     this._element.querySelector(`.card__text`)
         .addEventListener(`change`, this._onChangeText);
     this._element.querySelector(`.card__date-deadline-toggle`)
-        .addEventListener(`click`, this._onChangeDate);
+        .addEventListener(`click`, this._onChangeDateState);
+    this._element.querySelector(`.card__date`)
+        .addEventListener(`change`, this._onChangeDate);
     this._element.querySelector(`.card__repeat-toggle`)
         .addEventListener(`click`, this._onChangeRepeated);
 
@@ -281,7 +292,9 @@ export default class TaskEdit extends Component {
     this._element.querySelector(`.card__text`)
         .removeEventListener(`change`, this._onChangeText);
     this._element.querySelector(`.card__date-deadline-toggle`)
-        .removeEventListener(`click`, this._onChangeDate);
+        .removeEventListener(`click`, this._onChangeDateState);
+    this._element.querySelector(`.card__date`)
+        .removeEventListener(`change`, this._onChangeDate);
     this._element.querySelector(`.card__repeat-toggle`)
         .removeEventListener(`click`, this._onChangeRepeated);
   }
@@ -306,7 +319,9 @@ export default class TaskEdit extends Component {
       repeat: (value) => {
         target.repeatingDays[value] = true;
       },
-      date: (value) => target.dueDate[value],
+      date: (value) => {
+        target.dueDate = value;
+      },
     };
   }
 }
