@@ -69,18 +69,16 @@ const createTasks = (count, data) => {
 };
 
 const renderCards = (data) => {
-  // const fragment = document.createDocumentFragment();
-
   data.forEach((item) => {
     const taskComponent = new Task(item);
+    const editTaskComponent = new TaskEdit(item);
 
     taskComponent.onEdit = () => {
-      const editTaskComponent = new TaskEdit(item);
-
       editTaskComponent.onSubmit = (newObject) => {
         taskComponent.update(Object.assign(item, newObject));
         taskComponent.render();
         tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
+        editTaskComponent.update(item);
         editTaskComponent.unrender();
       };
 
@@ -91,8 +89,6 @@ const renderCards = (data) => {
 
     tasksContainer.appendChild(taskComponent.render());
   });
-
-  // tasksContainer.appendChild(fragment);
 };
 
 renderCards(createTasks(TasksCount.MIN, task));

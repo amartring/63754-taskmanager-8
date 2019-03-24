@@ -12,6 +12,7 @@ export default () => ({
     moment().add(getRandomNumber(0, 7), `d`).format(`D MMMM YYYY`),
     moment().subtract(getRandomNumber(0, 7), `d`).format(`D MMMM YYYY`),
   ][Math.floor(Math.random() * 2)],
+  dueTime: ``,
   tags: new Set([
     `keks`,
     `brainstorm`,
