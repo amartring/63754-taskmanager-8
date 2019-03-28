@@ -1,3 +1,7 @@
+import {getRandomNumber} from './util.js';
+
+const moment = require(`moment`);
+
 export default () => ({
   title: [
     `Изучить теорию`,
@@ -5,17 +9,13 @@ export default () => ({
     `Пройти интенсив на соточку`,
   ][Math.floor(Math.random() * 3)],
   dueDate: [
-    Date.now() + 1 + Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000,
-    Date.now() - 1 - Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000,
+    moment().add(getRandomNumber(0, 7), `d`).format(`D MMMM YYYY`),
+    moment().subtract(getRandomNumber(0, 7), `d`).format(`D MMMM YYYY`),
   ][Math.floor(Math.random() * 2)],
+  dueTime: ``,
   tags: new Set([
-    `homework`,
-    `theory`,
-    `practice`,
-    `intensive`,
     `keks`,
     `brainstorm`,
-    `htmlacademy`,
     `lazydays`,
     `hardwork`,
   ]),
@@ -28,13 +28,13 @@ export default () => ({
     `pink`,
   ][Math.floor(Math.random() * 5)],
   repeatingDays: {
-    Mo: [true, false][Math.floor(Math.random() * 2)],
-    Tu: [true, false][Math.floor(Math.random() * 2)],
-    We: [true, false][Math.floor(Math.random() * 2)],
-    Th: [true, false][Math.floor(Math.random() * 2)],
-    Fr: [true, false][Math.floor(Math.random() * 2)],
-    Sa: [true, false][Math.floor(Math.random() * 2)],
-    Su: [true, false][Math.floor(Math.random() * 2)],
+    'mo': false,
+    'tu': false,
+    'we': false,
+    'th': false,
+    'fr': false,
+    'sa': false,
+    'su': false,
   },
   isFavorite: [true, false][Math.floor(Math.random() * 2)],
   isDone: [true, false][Math.floor(Math.random() * 2)],
