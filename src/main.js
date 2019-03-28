@@ -49,6 +49,7 @@ const renderCards = (data) => {
   });
 };
 
+// eslint-disable-next-line consistent-return
 const filterTasks = (data, filterName) => {
   switch (filterName) {
     case `all`:
