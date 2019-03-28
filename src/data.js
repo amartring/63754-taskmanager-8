@@ -1,8 +1,22 @@
-import {getRandomNumber} from './util.js';
+import {getRandomNumber, shuffleArray} from './util.js';
+import moment from 'moment';
 
-const moment = require(`moment`);
+const getTags = () => {
+  const tags = new Set([
+    `homework`,
+    `theory`,
+    `practice`,
+    `intensive`,
+    `keks`,
+    `brainstorm`,
+    `htmlacademy`,
+    `lazydays`,
+    `hardwork`,
+  ]);
+  return shuffleArray([...tags]).splice(Math.floor(Math.random() * 5), Math.floor(Math.random() * 4));
+};
 
-export default () => ({
+const task = () => ({
   title: [
     `Изучить теорию`,
     `Сделать домашку`,
@@ -13,12 +27,7 @@ export default () => ({
     moment().subtract(getRandomNumber(0, 7), `d`).format(`D MMMM YYYY`),
   ][Math.floor(Math.random() * 2)],
   dueTime: ``,
-  tags: new Set([
-    `keks`,
-    `brainstorm`,
-    `lazydays`,
-    `hardwork`,
-  ]),
+  tags: getTags(),
   picture: `http://picsum.photos/100/100?r=${Math.random()}`,
   color: [
     `black`,
@@ -39,3 +48,43 @@ export default () => ({
   isFavorite: [true, false][Math.floor(Math.random() * 2)],
   isDone: [true, false][Math.floor(Math.random() * 2)],
 });
+
+const filters = [
+  {
+    name: `all`,
+    isDisabled: false,
+    isChecked: true,
+  },
+  {
+    name: `overdue`,
+    isDisabled: false,
+    isChecked: false,
+  },
+  {
+    name: `today`,
+    isDisabled: false,
+    isChecked: false,
+  },
+  {
+    name: `favorites`,
+    isDisabled: true,
+    isChecked: false,
+  },
+  {
+    name: `repeating`,
+    isDisabled: false,
+    isChecked: false,
+  },
+  {
+    name: `tags`,
+    isDisabled: false,
+    isChecked: false,
+  },
+  {
+    name: `archive`,
+    isDisabled: true,
+    isChecked: false,
+  }
+];
+
+export {task, filters};

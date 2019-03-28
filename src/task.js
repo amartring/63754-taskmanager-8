@@ -112,8 +112,7 @@ export default class Task extends Component {
         </label>
       </div>
     </div>
-  </article>
-  `;
+  </article>`.trim();
   }
 
   bind() {
