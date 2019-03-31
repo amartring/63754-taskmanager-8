@@ -1,72 +1,26 @@
-import {getRandomNumber} from './util.js';
-import task from './data.js';
+import moment from 'moment';
+import {task, filters} from './data.js';
 import Task from './task.js';
 import TaskEdit from './task-edit.js';
+import Filter from './filter.js';
+import Statistic from './statistic.js';
 
-import makeFilter from './make-filter.js';
-
-const FILTERS = [
-  {
-    name: `all`,
-    isDisabled: false,
-    isChecked: true
-  },
-  {
-    name: `overdue`,
-    isDisabled: true
-  },
-  {
-    name: `today`,
-    isDisabled: true
-  },
-  {
-    name: `favorites`,
-    isDisabled: false
-  },
-  {
-    name: `repeating`,
-    isDisabled: false
-  },
-  {
-    name: `tags`,
-    isDisabled: false
-  },
-  {
-    name: `archive`,
-    isDisabled: false
-  }
-];
-
-const TasksCount = {
-  MIN: 7,
-  MAX: 20
-};
+const TASKS_COUNT = 7;
 
 const filterContainer = document.querySelector(`.filter`);
-const tasksContainer = document.querySelector(`.board__tasks`);
-
-FILTERS.forEach((item) => {
-  filterContainer.insertAdjacentHTML(`beforeend`, makeFilter(item.name, item.isDisabled, item.isChecked));
-});
-
-const onFiltersClick = () => {
-  const randomCount = getRandomNumber(TasksCount.MIN, TasksCount.MAX);
-  tasksContainer.innerHTML = ``;
-  renderCards(createTasks(randomCount, task));
-};
-
-const updateTasks = () => {
-  const filters = filterContainer.querySelectorAll(`.filter__input`);
-  filters.forEach((item) => {
-    item.addEventListener(`click`, onFiltersClick);
-  });
-};
+const board = document.querySelector(`.board`);
+const tasksContainer = board.querySelector(`.board__tasks`);
+const statsContainer = document.querySelector(`.statistic`);
+const statsLink = document.querySelector(`#control__statistic`);
+const tasksLink = document.querySelector(`#control__task`);
 
 const createTasks = (count, data) => {
   return new Array(count)
   .fill(``)
   .map(() => data());
 };
+
+const tasks = createTasks(TASKS_COUNT, task);
 
 const renderCards = (data) => {
   data.forEach((item) => {
@@ -82,6 +36,10 @@ const renderCards = (data) => {
         editTaskComponent.unrender();
       };
 
+      editTaskComponent.onDelete = () => {
+        editTaskComponent.unrender();
+      };
+
       editTaskComponent.render();
       tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
       taskComponent.unrender();
@@ -91,5 +49,56 @@ const renderCards = (data) => {
   });
 };
 
-renderCards(createTasks(TasksCount.MIN, task));
-updateTasks();
+// eslint-disable-next-line consistent-return
+const filterTasks = (data, filterName) => {
+  switch (filterName) {
+    case `all`:
+      return data;
+
+    case `overdue`:
+      return data.filter((it) => moment(it.dueDate).format(`x`) < moment().subtract(1, `days`).format(`x`));
+
+    case `today`:
+      return data.filter((it) => it.dueDate === moment().format(`D MMMM YYYY`));
+
+    case `repeating`:
+      return data.filter((it) => [...Object.entries(it.repeatingDays)]
+          .some((rec) => rec[1]));
+
+    case `tags`:
+      return data.filter((it) => it.tags.length);
+  }
+};
+
+const renderFilters = (filtersData, tasksData) => {
+  filtersData.forEach((item) => {
+    const filterComponent = new Filter(item);
+
+    filterComponent.onFilter = () => {
+      const filteredTasks = filterTasks(tasksData, filterComponent._name);
+      tasksContainer.innerHTML = ``;
+      renderCards(filteredTasks);
+    };
+
+    filterContainer.appendChild(filterComponent.render());
+  });
+};
+
+const showStatistic = () => {
+  statsContainer.innerHTML = ``;
+  const statsComponent = new Statistic(tasks);
+  statsContainer.appendChild(statsComponent.render());
+  board.classList.add(`visually-hidden`);
+  statsContainer.classList.remove(`visually-hidden`);
+};
+
+const showTasks = () => {
+  board.classList.remove(`visually-hidden`);
+  statsContainer.classList.add(`visually-hidden`);
+};
+
+statsLink.addEventListener(`click`, showStatistic);
+tasksLink.addEventListener(`click`, showTasks);
+
+renderCards(tasks);
+renderFilters(filters, tasks);

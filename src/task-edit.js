@@ -1,6 +1,5 @@
 import Component from './component.js';
-
-const flatpickr = require(`flatpickr`);
+import flatpickr from 'flatpickr';
 
 export default class TaskEdit extends Component {
   constructor(data) {
@@ -18,10 +17,11 @@ export default class TaskEdit extends Component {
     this._onChangeDateState = this._onChangeDateState.bind(this);
     this._onChangeDate = this._onChangeDate.bind(this);
     this._onChangeTime = this._onChangeTime.bind(this);
-
     this._onChangeRepeated = this._onChangeRepeated.bind(this);
+    this._onDelete = this._onDelete.bind(this);
 
     this._onSubmit = null;
+    this._onDelete = null;
 
     this._state.isDate = false;
     this._state.isRepeated = false;
@@ -32,7 +32,7 @@ export default class TaskEdit extends Component {
       title: ``,
       color: ``,
       tags: new Set(),
-      dueDate: new Date(),
+      dueDate: this._dueDate,
       dueTime: ``,
       repeatingDays: {
         'mo': false,
@@ -108,6 +108,15 @@ export default class TaskEdit extends Component {
     this.unbind();
     this._partialUpdate();
     this.bind();
+  }
+
+  _onDelete(evt) {
+    evt.preventDefault();
+    return typeof this._onDelete === `function` && this._onDelete();
+  }
+
+  set onDelete(fn) {
+    this._onDelete = fn;
   }
 
   set onSubmit(fn) {
@@ -260,8 +269,7 @@ export default class TaskEdit extends Component {
         </div>
       </div>
     </form>
-  </article>
-  `;
+  </article>`.trim();
   }
 
   bind() {
@@ -277,13 +285,15 @@ export default class TaskEdit extends Component {
         .addEventListener(`change`, this._onChangeTime);
     this._element.querySelector(`.card__repeat-toggle`)
         .addEventListener(`click`, this._onChangeRepeated);
+    this._element.querySelector(`.card__delete`)
+        .addEventListener(`click`, this._onDelete);
 
     if (this._state.isDate) {
       flatpickr(this._element.querySelector(`.card__date`),
           {
             altInput: true,
-            altFormat: `j F`,
-            dateFormat: `j F`,
+            altFormat: `j F Y`,
+            dateFormat: `j F Y`,
           }
       );
       flatpickr(this._element.querySelector(`.card__time`),
@@ -311,6 +321,8 @@ export default class TaskEdit extends Component {
         .removeEventListener(`change`, this._onChangeTime);
     this._element.querySelector(`.card__repeat-toggle`)
         .removeEventListener(`click`, this._onChangeRepeated);
+    this._element.querySelector(`.card__delete`)
+        .removeEventListener(`click`, this._onDelete);
   }
 
   update(data) {
