@@ -1,16 +1,22 @@
 import Component from './component.js';
 import flatpickr from 'flatpickr';
+import moment from 'moment';
 
 export default class TaskEdit extends Component {
   constructor(data) {
     super();
+    this._id = data.id;
     this._title = data.title;
     this._dueDate = data.dueDate;
-    this._dueTime = data.dueTime;
     this._tags = data.tags;
     this._picture = data.picture;
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
+
+    this._time = moment(this._dueDate).format(`HH:mm`);
+
+    this._isFavorite = data.isFavorite;
+    this._isDone = data.isDone;
 
     this._onSubmitButtonClick = this._onSubmitButtonClick.bind(this);
     this._onChangeText = this._onChangeText.bind(this);
@@ -18,12 +24,12 @@ export default class TaskEdit extends Component {
     this._onChangeDate = this._onChangeDate.bind(this);
     this._onChangeTime = this._onChangeTime.bind(this);
     this._onChangeRepeated = this._onChangeRepeated.bind(this);
-    this._onDelete = this._onDelete.bind(this);
+    this._onDeleteClick = this._onDeleteClick.bind(this);
 
     this._onSubmit = null;
     this._onDelete = null;
 
-    this._state.isDate = false;
+    this._state.isDate = this._dueDate !== false;
     this._state.isRepeated = false;
   }
 
@@ -33,7 +39,7 @@ export default class TaskEdit extends Component {
       color: ``,
       tags: new Set(),
       dueDate: this._dueDate,
-      dueTime: ``,
+      time: ``,
       repeatingDays: {
         'mo': false,
         'tu': false,
@@ -65,16 +71,6 @@ export default class TaskEdit extends Component {
     this._element.innerHTML = this.template;
   }
 
-  _onSubmitButtonClick(evt) {
-    evt.preventDefault();
-    const formData = new FormData(this._element.querySelector(`.card__form`));
-    const newData = this._processForm(formData);
-    if (typeof this._onSubmit === `function`) {
-      this._onSubmit(newData);
-    }
-    this.update(newData);
-  }
-
   _onChangeText() {
     this._title = this._element.querySelector(`.card__text`).value;
     this.unbind();
@@ -91,13 +87,14 @@ export default class TaskEdit extends Component {
 
   _onChangeDate() {
     this._dueDate = this._element.querySelector(`.card__date[name=date]`).value;
+    this._dueDate = this._dueDate;
     this.unbind();
     this._partialUpdate();
     this.bind();
   }
 
   _onChangeTime() {
-    this._dueTime = this._element.querySelector(`.card__time[name=time]`).value;
+    this._time = this._element.querySelector(`.card__time[name=time]`).value;
     this.unbind();
     this._partialUpdate();
     this.bind();
@@ -110,9 +107,28 @@ export default class TaskEdit extends Component {
     this.bind();
   }
 
-  _onDelete(evt) {
+  _onDeleteClick(evt) {
     evt.preventDefault();
-    return typeof this._onDelete === `function` && this._onDelete();
+
+    this.block();
+    this._element.querySelector(`.card__delete`).textContent = `Deleting...`;
+
+    return typeof this._onDelete === `function` && this._onDelete({id: this._id});
+  }
+
+  _onSubmitButtonClick(evt) {
+    evt.preventDefault();
+    const formData = new FormData(this._element.querySelector(`.card__form`));
+    const newData = this._processForm(formData);
+
+    this.block();
+    this._element.querySelector(`.card__save`).textContent = `Saving...`;
+
+    if (typeof this._onSubmit === `function`) {
+      this._onSubmit(newData);
+    }
+
+    this.update(newData);
   }
 
   set onDelete(fn) {
@@ -166,7 +182,7 @@ export default class TaskEdit extends Component {
                     class="card__date"
                     type="text"
                     placeholder="23 September"
-                    value="${this._dueDate}"
+                    value="${this._dueDate && moment(this._dueDate).format(`DD MMMM YYYY`)}"
                     name="date">
                 </label>
                 <label class="card__input-deadline-wrap">
@@ -174,7 +190,7 @@ export default class TaskEdit extends Component {
                     class="card__time"
                     type="text"
                     placeholder="11:15"
-                    value="${this._dueTime}"
+                    value="${this._time && this._time}"
                     name="time">
                 </label>
               </fieldset>
@@ -272,6 +288,29 @@ export default class TaskEdit extends Component {
   </article>`.trim();
   }
 
+  block() {
+    this._element.querySelectorAll(`input, button, textarea`).forEach((input) => {
+      input.disabled = true;
+    });
+  }
+
+  unblock() {
+    this._element.querySelectorAll(`input, button, textarea`).forEach((input) => {
+      input.disabled = false;
+    });
+    this._element.querySelector(`.card__save`).textContent = `Save`;
+    this._element.querySelector(`.card__delete`).textContent = `Delete`;
+  }
+
+  shake() {
+    const ANIMATION_TIMEOUT = 600;
+    this._element.querySelector(`.card__inner`.styke.border = `2px solid red`);
+    this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
+    setTimeout(() => {
+      this._element.style.animation = ``;
+    }, ANIMATION_TIMEOUT);
+  }
+
   bind() {
     this._element.querySelector(`.card__form`)
         .addEventListener(`submit`, this._onSubmitButtonClick);
@@ -286,7 +325,7 @@ export default class TaskEdit extends Component {
     this._element.querySelector(`.card__repeat-toggle`)
         .addEventListener(`click`, this._onChangeRepeated);
     this._element.querySelector(`.card__delete`)
-        .addEventListener(`click`, this._onDelete);
+        .addEventListener(`click`, this._onDeleteClick);
 
     if (this._state.isDate) {
       flatpickr(this._element.querySelector(`.card__date`),
@@ -322,13 +361,13 @@ export default class TaskEdit extends Component {
     this._element.querySelector(`.card__repeat-toggle`)
         .removeEventListener(`click`, this._onChangeRepeated);
     this._element.querySelector(`.card__delete`)
-        .removeEventListener(`click`, this._onDelete);
+        .removeEventListener(`click`, this._onDeleteClick);
   }
 
   update(data) {
     this._title = data.title;
     this._dueDate = data.dueDate;
-    this._dueTime = data.dueTime;
+    this._time = data.time;
     this._tags = data.tags;
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
@@ -347,10 +386,10 @@ export default class TaskEdit extends Component {
         target.repeatingDays[value] = true;
       },
       date: (value) => {
-        target.dueDate = value;
+        target.dueDate = moment(value, `DD MMMM`);
       },
       time: (value) => {
-        target.dueTime = value;
+        target.time = value;
       },
     };
   }
