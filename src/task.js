@@ -19,12 +19,18 @@ export default class Task extends Component {
     this._isDone = data.isDone;
 
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
+    this._onTextareaClick = this._onTextareaClick.bind(this);
 
     this._onEdit = null;
   }
 
   _isRepeated() {
     return Object.values(this._repeatingDays).some((item) => item === true);
+  }
+
+  _onTextareaClick(evt) {
+    evt.preventDefault();
+    return typeof this._onEdit === `function` && this._onEdit();
   }
 
   _onEditButtonClick(evt) {
@@ -125,11 +131,15 @@ export default class Task extends Component {
   bind() {
     this._element.querySelector(`.card__btn--edit`)
         .addEventListener(`click`, this._onEditButtonClick);
+    this._element.querySelector(`.card__text`)
+        .addEventListener(`click`, this._onTextareaClick);
   }
 
   unbind() {
     this._element.querySelector(`.card__btn--edit`)
         .removeEventListener(`click`, this._onEditButtonClick);
+    this._element.querySelector(`.card__text`)
+        .removeEventListener(`click`, this._onTextareaClick);
   }
 
   update(data) {

@@ -27,10 +27,14 @@ export default class TaskEdit extends Component {
     this._onChangeRepeated = this._onChangeRepeated.bind(this);
     this._onDeleteClick = this._onDeleteClick.bind(this);
     this._onEscPress = this._onEscPress.bind(this);
+    // this._onFreePlaceClick = this._onFreePlaceClick.bind(this);
 
     this._onSubmit = null;
     this._onDelete = null;
     this._onClose = null;
+
+    this._flatpickrDate = null;
+    this._flatpickrTime = null;
 
     this._state.isDate = this._dueDate !== false;
     this._state.isRepeated = false;
@@ -116,6 +120,9 @@ export default class TaskEdit extends Component {
     this.block();
     this._element.querySelector(`.card__delete`).textContent = `Deleting...`;
 
+    this._flatpickrDate.destroy();
+    this._flatpickrTime.destroy();
+
     return typeof this._onDelete === `function` && this._onDelete({id: this._id});
   }
 
@@ -134,9 +141,19 @@ export default class TaskEdit extends Component {
     this.update(newData);
   }
 
+  // _onFreePlaceClick(evt) {
+  //   if (!this._element.contains(evt.target)) {
+  //     if (typeof this._onClose === `function`) {
+  //       this._onClose();
+  //     }
+  //   }
+  // }
+
   _onEscPress(evt) {
-    if (evt.key === `Escape` && this._onClose === `function`) {
-      this._onClose();
+    if (evt.keyCode === 27) {
+      if (typeof this._onClose === `function`) {
+        this._onClose();
+      }
     }
   }
 
@@ -340,16 +357,17 @@ export default class TaskEdit extends Component {
     this._element.querySelector(`.card__delete`)
         .addEventListener(`click`, this._onDeleteClick);
     document.addEventListener(`keydown`, this._onEscPress);
+    // document.addEventListener(`click`, this._onFreePlaceClick);
 
     if (this._state.isDate) {
-      flatpickr(this._element.querySelector(`.card__date`),
+      this._flatpickrDate = flatpickr(this._element.querySelector(`.card__date`),
           {
             altInput: true,
             altFormat: `j F Y`,
             dateFormat: `j F Y`,
           }
       );
-      flatpickr(this._element.querySelector(`.card__time`),
+      this._flatpickrTime = flatpickr(this._element.querySelector(`.card__time`),
           {
             enableTime: true,
             noCalendar: true,
@@ -377,6 +395,10 @@ export default class TaskEdit extends Component {
     this._element.querySelector(`.card__delete`)
         .removeEventListener(`click`, this._onDeleteClick);
     document.removeEventListener(`keydown`, this._onEscPress);
+    // document.removeEventListener(`click`, this._onFreePlaceClick);
+
+    this._flatpickrDate.destroy();
+    this._flatpickrTime.destroy();
   }
 
   update(data) {
