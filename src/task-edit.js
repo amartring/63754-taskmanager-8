@@ -25,9 +25,11 @@ export default class TaskEdit extends Component {
     this._onChangeTime = this._onChangeTime.bind(this);
     this._onChangeRepeated = this._onChangeRepeated.bind(this);
     this._onDeleteClick = this._onDeleteClick.bind(this);
+    this._onEscPress = this._onEscPress.bind(this);
 
     this._onSubmit = null;
     this._onDelete = null;
+    this._onClose = null;
 
     this._state.isDate = this._dueDate !== false;
     this._state.isRepeated = false;
@@ -129,6 +131,16 @@ export default class TaskEdit extends Component {
     }
 
     this.update(newData);
+  }
+
+  _onEscPress(evt) {
+    if (evt.key === `Escape` && this._onClose === `function`) {
+      this._onClose();
+    }
+  }
+
+  set onClose(fn) {
+    this._onClose = fn;
   }
 
   set onDelete(fn) {
@@ -326,6 +338,7 @@ export default class TaskEdit extends Component {
         .addEventListener(`click`, this._onChangeRepeated);
     this._element.querySelector(`.card__delete`)
         .addEventListener(`click`, this._onDeleteClick);
+    document.addEventListener(`keydown`, this._onEscPress);
 
     if (this._state.isDate) {
       flatpickr(this._element.querySelector(`.card__date`),
@@ -362,6 +375,7 @@ export default class TaskEdit extends Component {
         .removeEventListener(`click`, this._onChangeRepeated);
     this._element.querySelector(`.card__delete`)
         .removeEventListener(`click`, this._onDeleteClick);
+    document.removeEventListener(`keydown`, this._onEscPress);
   }
 
   update(data) {

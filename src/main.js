@@ -1,12 +1,12 @@
 import moment from 'moment';
-import {task, filters} from './data.js';
+import {filters} from './data.js';
 import Task from './task.js';
 import TaskEdit from './task-edit.js';
 import Filter from './filter.js';
 import Statistic from './statistic.js';
 import API from './api.js';
 
-const TASKS_COUNT = 7;
+// const TASKS_COUNT = 7;
 const HIDDEN_CLASS = `visually-hidden`;
 const LOADING_MESSAGE = `Loading tasks...`;
 const ERROR_MESSAGE = `Something went wrong while loading your tasks. Check your connection or try again later`;
@@ -23,13 +23,13 @@ const statsLink = document.querySelector(`#control__statistic`);
 const tasksLink = document.querySelector(`#control__task`);
 const loadingContainer = document.querySelector(`.board__no-tasks`);
 
-const createTasks = (count, data) => {
-  return new Array(count)
-  .fill(``)
-  .map(() => data());
-};
+// const createTasks = (count, data) => {
+//   return new Array(count)
+//   .fill(``)
+//   .map(() => data());
+// };
 
-const tasks = createTasks(TASKS_COUNT, task);
+// const tasks = createTasks(TASKS_COUNT, task);
 
 const renderCards = (data) => {
   tasksContainer.innerHTML = ``;
@@ -49,6 +49,7 @@ const renderCards = (data) => {
           tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
           editTaskComponent.update(newTask);
           editTaskComponent.unrender();
+          renderStatistic(data);
         })
         .catch(() => {
           editTaskComponent.shake();
@@ -59,11 +60,20 @@ const renderCards = (data) => {
       editTaskComponent.onDelete = () => {
         api.deleteTask({id: item.id})
           .then(() => api.getTasks())
-          .then(renderCards)
+          .then((cards) => {
+            renderCards(cards);
+            renderStatistic(cards);
+          })
           .catch(() => {
             editTaskComponent.shake();
             editTaskComponent.unblock();
           });
+      };
+
+      editTaskComponent.onClose = () => {
+        taskComponent.render();
+        tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
+        editTaskComponent.unrender();
       };
 
       editTaskComponent.render();
@@ -117,10 +127,14 @@ const renderFilters = (filtersData, tasksData) => {
   });
 };
 
-const onStatisticClick = () => {
+const renderStatistic = (data) => {
   statsContainer.innerHTML = ``;
-  const statsComponent = new Statistic(tasks);
+  const statsComponent = new Statistic(data);
   statsContainer.appendChild(statsComponent.render());
+  statsComponent.update();
+};
+
+const onStatisticClick = () => {
   board.classList.add(HIDDEN_CLASS);
   statsContainer.classList.remove(HIDDEN_CLASS);
 };
@@ -146,6 +160,7 @@ api.getTasks()
     hideLoadingMessage();
     renderCards(cards);
     renderFilters(filters, cards);
+    renderStatistic(cards);
   })
   .catch(() => {
     showLoadingMessage(ERROR_MESSAGE);
@@ -153,7 +168,5 @@ api.getTasks()
 
 statsLink.addEventListener(`click`, onStatisticClick);
 tasksLink.addEventListener(`click`, onTasksClick);
-
-// renderFilters(filters, tasks);
 
 console.log(api.getTasks());
