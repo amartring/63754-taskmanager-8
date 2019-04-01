@@ -117,7 +117,7 @@ const renderFilters = (filtersData, tasksData) => {
   });
 };
 
-const showStatistic = () => {
+const onStatisticClick = () => {
   statsContainer.innerHTML = ``;
   const statsComponent = new Statistic(tasks);
   statsContainer.appendChild(statsComponent.render());
@@ -125,7 +125,7 @@ const showStatistic = () => {
   statsContainer.classList.remove(HIDDEN_CLASS);
 };
 
-const showTasks = () => {
+const onTasksClick = () => {
   board.classList.remove(HIDDEN_CLASS);
   statsContainer.classList.add(HIDDEN_CLASS);
 };
@@ -151,8 +151,8 @@ api.getTasks()
     showLoadingMessage(ERROR_MESSAGE);
   });
 
-statsLink.addEventListener(`click`, showStatistic);
-tasksLink.addEventListener(`click`, showTasks);
+statsLink.addEventListener(`click`, onStatisticClick);
+tasksLink.addEventListener(`click`, onTasksClick);
 
 // renderFilters(filters, tasks);
 

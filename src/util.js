@@ -13,8 +13,8 @@ const shuffleArray = (array) => {
 };
 
 const getRandomArrayElements = (values, amount) => {
-  let arrayCopy = Array.from(values);
-  let newArray = [];
+  const arrayCopy = Array.from(values);
+  const newArray = [];
 
   while (amount > 0) {
     newArray.push(arrayCopy[getRandomNumber(0, arrayCopy.length - 1)]);

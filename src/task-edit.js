@@ -18,7 +18,7 @@ export default class TaskEdit extends Component {
     this._isFavorite = data.isFavorite;
     this._isDone = data.isDone;
 
-    this._onSubmitButtonClick = this._onSubmitButtonClick.bind(this);
+    this._onSaveClick = this._onSaveClick.bind(this);
     this._onChangeText = this._onChangeText.bind(this);
     this._onChangeDateState = this._onChangeDateState.bind(this);
     this._onChangeDate = this._onChangeDate.bind(this);
@@ -116,7 +116,7 @@ export default class TaskEdit extends Component {
     return typeof this._onDelete === `function` && this._onDelete({id: this._id});
   }
 
-  _onSubmitButtonClick(evt) {
+  _onSaveClick(evt) {
     evt.preventDefault();
     const formData = new FormData(this._element.querySelector(`.card__form`));
     const newData = this._processForm(formData);
@@ -151,7 +151,7 @@ export default class TaskEdit extends Component {
           <button type="button" class="card__btn card__btn--archive">
             archive
           </button>
-          <button type="button" class="card__btn card__btn--favorites card__btn--disabled">
+          <button type="button" class="card__btn card__btn--favorites">
             favorites
           </button>
         </div>
@@ -313,7 +313,7 @@ export default class TaskEdit extends Component {
 
   bind() {
     this._element.querySelector(`.card__form`)
-        .addEventListener(`submit`, this._onSubmitButtonClick);
+        .addEventListener(`submit`, this._onSaveClick);
     this._element.querySelector(`.card__text`)
         .addEventListener(`change`, this._onChangeText);
     this._element.querySelector(`.card__date-deadline-toggle`)
@@ -349,7 +349,7 @@ export default class TaskEdit extends Component {
 
   unbind() {
     this._element.querySelector(`.card__form`)
-        .removeEventListener(`submit`, this._onSubmitButtonClick);
+        .removeEventListener(`submit`, this._onSaveClick);
     this._element.querySelector(`.card__text`)
         .removeEventListener(`change`, this._onChangeText);
     this._element.querySelector(`.card__date-deadline-toggle`)
