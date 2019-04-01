@@ -1,11 +1,16 @@
 import moment from 'moment';
-import {task, filters} from './data.js';
+import {filters} from './data.js';
 import Task from './task.js';
 import TaskEdit from './task-edit.js';
 import Filter from './filter.js';
 import Statistic from './statistic.js';
+import API from './api.js';
+import {HIDDEN_CLASS, Message} from './constants.js';
 
-const TASKS_COUNT = 7;
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
+const END_POINT = `https://es8-demo-srv.appspot.com/task-manager`;
+
+const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
 const filterContainer = document.querySelector(`.filter`);
 const board = document.querySelector(`.board`);
@@ -13,30 +18,50 @@ const tasksContainer = board.querySelector(`.board__tasks`);
 const statsContainer = document.querySelector(`.statistic`);
 const statsLink = document.querySelector(`#control__statistic`);
 const tasksLink = document.querySelector(`#control__task`);
-
-const createTasks = (count, data) => {
-  return new Array(count)
-  .fill(``)
-  .map(() => data());
-};
-
-const tasks = createTasks(TASKS_COUNT, task);
+const loadingContainer = document.querySelector(`.board__no-tasks`);
 
 const renderCards = (data) => {
+  tasksContainer.innerHTML = ``;
   data.forEach((item) => {
     const taskComponent = new Task(item);
     const editTaskComponent = new TaskEdit(item);
 
     taskComponent.onEdit = () => {
       editTaskComponent.onSubmit = (newObject) => {
-        taskComponent.update(Object.assign(item, newObject));
-        taskComponent.render();
-        tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
-        editTaskComponent.update(item);
-        editTaskComponent.unrender();
+        item = Object.assign(item, newObject);
+
+        api.updateTask({id: item.id, data: item.toRAW()})
+        .then((newTask) => {
+          editTaskComponent.unblock();
+          taskComponent.update(newTask);
+          taskComponent.render();
+          tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
+          editTaskComponent.update(newTask);
+          editTaskComponent.unrender();
+          renderStatistic(data);
+        })
+        .catch(() => {
+          editTaskComponent.shake();
+          editTaskComponent.unblock();
+        });
       };
 
       editTaskComponent.onDelete = () => {
+        api.deleteTask({id: item.id})
+          .then(() => api.getTasks())
+          .then((cards) => {
+            renderCards(cards);
+            renderStatistic(cards);
+          })
+          .catch(() => {
+            editTaskComponent.shake();
+            editTaskComponent.unblock();
+          });
+      };
+
+      editTaskComponent.onClose = () => {
+        taskComponent.render();
+        tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
         editTaskComponent.unrender();
       };
 
@@ -49,25 +74,32 @@ const renderCards = (data) => {
   });
 };
 
-// eslint-disable-next-line consistent-return
 const filterTasks = (data, filterName) => {
+  let filteredTasks = data;
+
   switch (filterName) {
     case `all`:
-      return data;
+      filteredTasks = data;
+      break;
 
     case `overdue`:
-      return data.filter((it) => moment(it.dueDate).format(`x`) < moment().subtract(1, `days`).format(`x`));
+      filteredTasks = data.filter((it) => moment(it.dueDate).isBefore(moment().subtract(1, `day`)));
+      break;
 
     case `today`:
-      return data.filter((it) => it.dueDate === moment().format(`D MMMM YYYY`));
+      filteredTasks = data.filter((it) => moment(it.dueDate).format(`D MMMM YYYY`) === moment().format(`D MMMM YYYY`));
+      break;
 
     case `repeating`:
-      return data.filter((it) => [...Object.entries(it.repeatingDays)]
+      filteredTasks = data.filter((it) => [...Object.entries(it.repeatingDays)]
           .some((rec) => rec[1]));
+      break;
 
     case `tags`:
-      return data.filter((it) => it.tags.length);
+      filteredTasks = data.filter((it) => [...it.tags].length);
+      break;
   }
+  return filteredTasks;
 };
 
 const renderFilters = (filtersData, tasksData) => {
@@ -84,21 +116,44 @@ const renderFilters = (filtersData, tasksData) => {
   });
 };
 
-const showStatistic = () => {
+const renderStatistic = (data) => {
   statsContainer.innerHTML = ``;
-  const statsComponent = new Statistic(tasks);
+  const statsComponent = new Statistic(data);
   statsContainer.appendChild(statsComponent.render());
-  board.classList.add(`visually-hidden`);
-  statsContainer.classList.remove(`visually-hidden`);
+  statsComponent.update();
 };
 
-const showTasks = () => {
-  board.classList.remove(`visually-hidden`);
-  statsContainer.classList.add(`visually-hidden`);
+const onStatisticClick = () => {
+  board.classList.add(HIDDEN_CLASS);
+  statsContainer.classList.remove(HIDDEN_CLASS);
 };
 
-statsLink.addEventListener(`click`, showStatistic);
-tasksLink.addEventListener(`click`, showTasks);
+const onTasksClick = () => {
+  board.classList.remove(HIDDEN_CLASS);
+  statsContainer.classList.add(HIDDEN_CLASS);
+};
 
-renderCards(tasks);
-renderFilters(filters, tasks);
+const showLoadingMessage = (text) => {
+  loadingContainer.classList.remove(HIDDEN_CLASS);
+  loadingContainer.textContent = text;
+};
+
+const hideLoadingMessage = () => {
+  loadingContainer.classList.add(HIDDEN_CLASS);
+};
+
+showLoadingMessage(Message.LOADING);
+
+api.getTasks()
+  .then((cards) => {
+    hideLoadingMessage();
+    renderCards(cards);
+    renderFilters(filters, cards);
+    renderStatistic(cards);
+  })
+  .catch(() => {
+    showLoadingMessage(Message.ERROR);
+  });
+
+statsLink.addEventListener(`click`, onStatisticClick);
+tasksLink.addEventListener(`click`, onTasksClick);

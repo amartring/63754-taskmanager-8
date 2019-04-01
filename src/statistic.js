@@ -1,10 +1,11 @@
 import Chart from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
+import {getPieChart, getLineChart} from './chart.js';
 import moment from 'moment';
 import flatpickr from 'flatpickr';
 import Component from './component.js';
-import {getRandomArrayElements, hexColor} from './util.js';
+import {getRandomArrayElements} from './util.js';
 import {createElement} from './create-element.js';
+import {DateFormate, HexColor} from './constants.js';
 
 export default class Statistic extends Component {
   constructor(data) {
@@ -28,6 +29,26 @@ export default class Statistic extends Component {
       moment(it.dueDate).isSameOrAfter(this._periodBegin) && moment(it.dueDate).isSameOrBefore(this._periodEnd));
   }
 
+  _filterByDays() {
+    const data = {};
+
+    const filteredTasks = this._getFilteredTasks();
+    const allDays = filteredTasks.map((it) => moment(it.dueDate).format(DateFormate.STATS));
+    const uniqueDays = new Set(allDays);
+    uniqueDays.forEach((it) => {
+      data[it] = allDays.filter((day) => day === it).length;
+    });
+
+    const compare = (firstDay, secondDay) => moment(firstDay[0]).format(`DD`) - moment(secondDay[0]).format(`DD`);
+    const arrayOfDays = Object.keys(data).map((key) => [key, data[key]]);
+
+    const datas = arrayOfDays.sort(compare);
+    const days = datas.map((it) => it[0]);
+    const daysCount = datas.map((it) => it[1]);
+
+    return [days, daysCount];
+  }
+
   _filterByColors() {
     const data = {};
 
@@ -40,7 +61,7 @@ export default class Statistic extends Component {
 
     const colors = [...uniqueColors];
     const colorsCount = Object.values(data);
-    const colorsBackgrounds = colors.map((color) => hexColor[color]);
+    const colorsBackgrounds = colors.map((color) => HexColor[color]);
 
     return [colors, colorsCount, colorsBackgrounds];
   }
@@ -58,17 +79,37 @@ export default class Statistic extends Component {
 
     const tags = [...uniqueTags];
     const tagsCount = Object.values(data);
-    const tagsBackgrounds = getRandomArrayElements(Object.values(hexColor), tags.length);
+    const tagsBackgrounds = getRandomArrayElements(Object.values(HexColor), tags.length);
 
     return [tags, tagsCount, tagsBackgrounds];
   }
 
-  _getChartData() {
+  _createChart() {
+    const daysCtx = this._element.querySelector(`.statistic__days`);
+    const colorsCtx = this._element.querySelector(`.statistic__colors`);
+    const tagsCtx = this._element.querySelector(`.statistic__tags`);
+
+    const [daysLabels, daysDatas] = this._filterByDays();
     const [colorsLabels, colorsDatas, colorsBackgrounds] = this._filterByColors();
     const [tagsLabels, tagsDatas, tagsBackgrounds] = this._filterByTags();
 
-    this._colorsChart = new Chart(this._element.querySelector(`.statistic__colors`), this._getChart(`COLORS`));
-    this._tagsChart = new Chart(this._element.querySelector(`.statistic__tags`), this._getChart(`TAGS`));
+    this._daysChart = new Chart(daysCtx, getLineChart());
+    this._colorsChart = new Chart(colorsCtx, getPieChart(`COLORS`));
+    this._tagsChart = new Chart(tagsCtx, getPieChart(`TAGS`));
+
+    this._daysChart.data = {
+      labels: daysLabels,
+      datasets: [{
+        data: daysDatas,
+        backgroundColor: `transparent`,
+        borderColor: `#000000`,
+        borderWidth: 1,
+        lineTension: 0,
+        pointRadius: 8,
+        pointHoverRadius: 8,
+        pointBackgroundColor: `#000000`
+      }]
+    };
 
     this._colorsChart.data = {
       labels: colorsLabels,
@@ -86,57 +127,9 @@ export default class Statistic extends Component {
       }]
     };
 
+    this._daysChart.update();
     this._colorsChart.update();
     this._tagsChart.update();
-  }
-
-  _getChart(name) {
-    return {
-      plugins: [ChartDataLabels],
-      type: `pie`,
-      options: {
-        plugins: {
-          datalabels: {
-            display: false
-          }
-        },
-        tooltips: {
-          callbacks: {
-            label: (tooltipItem, data) => {
-              const allData = data.datasets[tooltipItem.datasetIndex].data;
-              const tooltipData = allData[tooltipItem.index];
-              const total = allData.reduce((acc, it) => acc + parseFloat(it));
-              const tooltipPercentage = Math.round((tooltipData / total) * 100);
-              return `${tooltipData} TASKS — ${tooltipPercentage}%`;
-            }
-          },
-          displayColors: false,
-          backgroundColor: `#ffffff`,
-          bodyFontColor: `#000000`,
-          borderColor: `#000000`,
-          borderWidth: 1,
-          cornerRadius: 0,
-          xPadding: 15,
-          yPadding: 15
-        },
-        title: {
-          display: true,
-          text: `DONE BY: ${name}`,
-          fontSize: 16,
-          fontColor: `#000000`
-        },
-        legend: {
-          position: `left`,
-          labels: {
-            boxWidth: 15,
-            padding: 25,
-            fontStyle: 500,
-            fontColor: `#000000`,
-            fontSize: 13
-          }
-        }
-      }
-    };
   }
 
   get template() {
@@ -145,26 +138,22 @@ export default class Statistic extends Component {
       <div class="statistic__line">
         <div class="statistic__period">
           <h2 class="statistic__period-title">Task Activity DIAGRAM</h2>
-
           <div class="statistic-input-wrap">
             <input
               class="statistic__period-input"
               type="text"
-              placeholder="${moment(this._periodBegin).format(`DD MMMM`)} - ${moment(this._periodEnd).format(`DD MMMM`)}"
-
+              placeholder="${moment(this._periodBegin).format(DateFormate.STATS)} - ${moment(this._periodEnd).format(DateFormate.STATS)}"
             />
           </div>
-
           <p class="statistic__period-result">
             In total for the specified period
             <span class="statistic__task-found">${this._filteredData.length}</span> tasks were fulfilled.
           </p>
         </div>
-        <div class="statistic__line-graphic visually-hidden">
+        <div class="statistic__line-graphic">
           <canvas class="statistic__days" width="550" height="150"></canvas>
         </div>
       </div>
-
       <div class="statistic__circle">
         <div class="statistic__tags-wrap">
           <canvas class="statistic__tags" width="400" height="300"></canvas>
@@ -177,15 +166,7 @@ export default class Statistic extends Component {
   }
 
   _onDateChange() {
-    const period = this._element.querySelector(`.statistic__period-input`).value.split(` - `);
-    this._periodBegin = moment(period[0], `DD MMM`).startOf(`day`);
-    this._periodEnd = period.length > 1 ? moment(period[1], `DD MMM`).endOf(`day`) : moment(period[0], `DD MMM`).endOf(`day`);
-
-    this._colorsChart.destroy();
-    this._tagsChart.destroy();
-    this._getChartData();
-    this._filteredData = this._getFilteredTasks();
-    this._partialUpdate();
+    this.update();
   }
 
   bind() {
@@ -209,10 +190,23 @@ export default class Statistic extends Component {
 
   unbind() {}
 
+  update() {
+    const period = this._element.querySelector(`.statistic__period-input`).value.split(` - `);
+    this._periodBegin = moment(period[0], DateFormate.STATS).startOf(`day`);
+    this._periodEnd = period.length > 1 ? moment(period[1], DateFormate.STATS).endOf(`day`) : moment(period[0], DateFormate.STATS).endOf(`day`);
+
+    this._daysChart.destroy();
+    this._colorsChart.destroy();
+    this._tagsChart.destroy();
+    this._createChart();
+    this._filteredData = this._getFilteredTasks();
+    this._partialUpdate();
+  }
+
   render() {
     this._element = createElement(this.template);
+    this._createChart();
     this.bind();
-    this._getChartData();
     return this._element;
   }
 }

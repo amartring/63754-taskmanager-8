@@ -1,15 +1,22 @@
 import Component from './component.js';
+import {DateFormate} from './constants.js';
+import moment from 'moment';
 
 export default class Task extends Component {
   constructor(data) {
     super();
+    this._id = data.id;
     this._title = data.title;
     this._dueDate = data.dueDate;
-    this._dueTime = data.dueTime;
     this._tags = data.tags;
     this._picture = data.picture;
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
+
+    this._time = moment(this._dueDate).format(`HH:mm`);
+
+    this._isFavorite = data.isFavorite;
+    this._isDone = data.isDone;
 
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
 
@@ -40,7 +47,7 @@ export default class Task extends Component {
         <button type="button" class="card__btn card__btn--archive">
           archive
         </button>
-        <button type="button" class="card__btn card__btn--favorites card__btn--disabled">
+        <button type="button" class="card__btn card__btn--favorites">
           favorites
         </button>
       </div>
@@ -67,7 +74,7 @@ export default class Task extends Component {
                   class="card__date"
                   type="text"
                   placeholder="23 September"
-                  value="${this._dueDate ? this._dueDate : ``}"
+                  value="${moment(this._dueDate).format(DateFormate.TASK)}"
                   name="date">
               </label>
               <label class="card__input-deadline-wrap">
@@ -75,7 +82,7 @@ export default class Task extends Component {
                   class="card__time"
                   type="text"
                   placeholder="11:15"
-                  value="${this._dueTime}"
+                  value="${this._time && this._time}"
                   name="time">
               </label>
             </fieldset>
@@ -131,6 +138,6 @@ export default class Task extends Component {
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
     this._dueDate = data.dueDate;
-    this._dueTime = data.dueTime;
+    this._time = data.time;
   }
 }
