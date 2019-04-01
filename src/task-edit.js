@@ -1,4 +1,5 @@
 import Component from './component.js';
+import {DateFormate} from './constants.js';
 import flatpickr from 'flatpickr';
 import moment from 'moment';
 
@@ -194,7 +195,7 @@ export default class TaskEdit extends Component {
                     class="card__date"
                     type="text"
                     placeholder="23 September"
-                    value="${this._dueDate && moment(this._dueDate).format(`DD MMMM YYYY`)}"
+                    value="${this._dueDate && moment(this._dueDate).format(DateFormate.TASK)}"
                     name="date">
                 </label>
                 <label class="card__input-deadline-wrap">
@@ -400,7 +401,7 @@ export default class TaskEdit extends Component {
         target.repeatingDays[value] = true;
       },
       date: (value) => {
-        target.dueDate = moment(value, `DD MMMM`);
+        target.dueDate = moment(value, DateFormate.TASK);
       },
       time: (value) => {
         target.time = value;

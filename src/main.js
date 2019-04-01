@@ -5,10 +5,8 @@ import TaskEdit from './task-edit.js';
 import Filter from './filter.js';
 import Statistic from './statistic.js';
 import API from './api.js';
+import {HIDDEN_CLASS, Message} from './constants.js';
 
-const HIDDEN_CLASS = `visually-hidden`;
-const LOADING_MESSAGE = `Loading tasks...`;
-const ERROR_MESSAGE = `Something went wrong while loading your tasks. Check your connection or try again later`;
 const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
 const END_POINT = `https://es8-demo-srv.appspot.com/task-manager`;
 
@@ -144,7 +142,7 @@ const hideLoadingMessage = () => {
   loadingContainer.classList.add(HIDDEN_CLASS);
 };
 
-showLoadingMessage(LOADING_MESSAGE);
+showLoadingMessage(Message.LOADING);
 
 api.getTasks()
   .then((cards) => {
@@ -154,10 +152,8 @@ api.getTasks()
     renderStatistic(cards);
   })
   .catch(() => {
-    showLoadingMessage(ERROR_MESSAGE);
+    showLoadingMessage(Message.ERROR);
   });
 
 statsLink.addEventListener(`click`, onStatisticClick);
 tasksLink.addEventListener(`click`, onTasksClick);
-
-console.log(api.getTasks());

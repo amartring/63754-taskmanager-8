@@ -22,15 +22,3 @@ export const getRandomArrayElements = (values, amount) => {
   }
   return newArray;
 };
-
-export const hexColor = {
-  yellow: `#ffe125`,
-  pink: `#ff3cb9`,
-  blue: `#0c5cdd`,
-  green: `#31b55c`,
-  black: `#000000`,
-  orange: `#ffa500`,
-  purple: `#800080`,
-  teal: `#008080`,
-  skyblue: `#87ceeb`,
-};

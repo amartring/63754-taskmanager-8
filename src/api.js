@@ -1,12 +1,6 @@
 import Component from './component.js';
 import ModelTask from './model-task.js';
-
-const Method = {
-  GET: `GET`,
-  POST: `POST`,
-  PUT: `PUT`,
-  DELETE: `DELETE`
-};
+import {Method} from './constants.js';
 
 const checkStatus = (response) => {
   if (response.status >= 200 && response.status < 300) {

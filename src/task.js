@@ -1,4 +1,5 @@
 import Component from './component.js';
+import {DateFormate} from './constants.js';
 import moment from 'moment';
 
 export default class Task extends Component {
@@ -73,7 +74,7 @@ export default class Task extends Component {
                   class="card__date"
                   type="text"
                   placeholder="23 September"
-                  value="${moment(this._dueDate).format(`DD MMMM YYYY`)}"
+                  value="${moment(this._dueDate).format(DateFormate.TASK)}"
                   name="date">
               </label>
               <label class="card__input-deadline-wrap">

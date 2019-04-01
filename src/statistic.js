@@ -3,8 +3,9 @@ import {getPieChart, getLineChart} from './chart.js';
 import moment from 'moment';
 import flatpickr from 'flatpickr';
 import Component from './component.js';
-import {getRandomArrayElements, hexColor} from './util.js';
+import {getRandomArrayElements} from './util.js';
 import {createElement} from './create-element.js';
+import {DateFormate, HexColor} from './constants.js';
 
 export default class Statistic extends Component {
   constructor(data) {
@@ -32,7 +33,7 @@ export default class Statistic extends Component {
     const data = {};
 
     const filteredTasks = this._getFilteredTasks();
-    const allDays = filteredTasks.map((it) => moment(it.dueDate).format(`DD MMMM`));
+    const allDays = filteredTasks.map((it) => moment(it.dueDate).format(DateFormate.STATS));
     const uniqueDays = new Set(allDays);
     uniqueDays.forEach((it) => {
       data[it] = allDays.filter((day) => day === it).length;
@@ -60,7 +61,7 @@ export default class Statistic extends Component {
 
     const colors = [...uniqueColors];
     const colorsCount = Object.values(data);
-    const colorsBackgrounds = colors.map((color) => hexColor[color]);
+    const colorsBackgrounds = colors.map((color) => HexColor[color]);
 
     return [colors, colorsCount, colorsBackgrounds];
   }
@@ -78,7 +79,7 @@ export default class Statistic extends Component {
 
     const tags = [...uniqueTags];
     const tagsCount = Object.values(data);
-    const tagsBackgrounds = getRandomArrayElements(Object.values(hexColor), tags.length);
+    const tagsBackgrounds = getRandomArrayElements(Object.values(HexColor), tags.length);
 
     return [tags, tagsCount, tagsBackgrounds];
   }
@@ -137,16 +138,13 @@ export default class Statistic extends Component {
       <div class="statistic__line">
         <div class="statistic__period">
           <h2 class="statistic__period-title">Task Activity DIAGRAM</h2>
-
           <div class="statistic-input-wrap">
             <input
               class="statistic__period-input"
               type="text"
-              placeholder="${moment(this._periodBegin).format(`DD MMMM`)} - ${moment(this._periodEnd).format(`DD MMMM`)}"
-
+              placeholder="${moment(this._periodBegin).format(DateFormate.STATS)} - ${moment(this._periodEnd).format(DateFormate.STATS)}"
             />
           </div>
-
           <p class="statistic__period-result">
             In total for the specified period
             <span class="statistic__task-found">${this._filteredData.length}</span> tasks were fulfilled.
@@ -156,7 +154,6 @@ export default class Statistic extends Component {
           <canvas class="statistic__days" width="550" height="150"></canvas>
         </div>
       </div>
-
       <div class="statistic__circle">
         <div class="statistic__tags-wrap">
           <canvas class="statistic__tags" width="400" height="300"></canvas>
@@ -195,8 +192,8 @@ export default class Statistic extends Component {
 
   update() {
     const period = this._element.querySelector(`.statistic__period-input`).value.split(` - `);
-    this._periodBegin = moment(period[0], `DD MMM`).startOf(`day`);
-    this._periodEnd = period.length > 1 ? moment(period[1], `DD MMM`).endOf(`day`) : moment(period[0], `DD MMM`).endOf(`day`);
+    this._periodBegin = moment(period[0], DateFormate.STATS).startOf(`day`);
+    this._periodEnd = period.length > 1 ? moment(period[1], DateFormate.STATS).endOf(`day`) : moment(period[0], DateFormate.STATS).endOf(`day`);
 
     this._daysChart.destroy();
     this._colorsChart.destroy();
