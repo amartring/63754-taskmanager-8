@@ -1,6 +1,6 @@
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-export const getChart = (name) => {
+export const getPieChart = (name) => {
   return {
     plugins: [ChartDataLabels],
     type: `pie`,
@@ -44,6 +44,56 @@ export const getChart = (name) => {
           fontColor: `#000000`,
           fontSize: 13
         }
+      }
+    }
+  };
+};
+
+export const getLineChart = () => {
+  return {
+    plugins: [ChartDataLabels],
+    type: `line`,
+    options: {
+      plugins: {
+        datalabels: {
+          font: {
+            size: 8
+          },
+          color: `#ffffff`
+        }
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            display: false
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false
+          }
+        }],
+        xAxes: [{
+          ticks: {
+            fontStyle: `bold`,
+            fontColor: `#000000`
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false
+          }
+        }]
+      },
+      legend: {
+        display: false
+      },
+      layout: {
+        padding: {
+          top: 10
+        }
+      },
+      tooltips: {
+        enabled: false
       }
     }
   };

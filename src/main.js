@@ -6,7 +6,6 @@ import Filter from './filter.js';
 import Statistic from './statistic.js';
 import API from './api.js';
 
-// const TASKS_COUNT = 7;
 const HIDDEN_CLASS = `visually-hidden`;
 const LOADING_MESSAGE = `Loading tasks...`;
 const ERROR_MESSAGE = `Something went wrong while loading your tasks. Check your connection or try again later`;
@@ -22,14 +21,6 @@ const statsContainer = document.querySelector(`.statistic`);
 const statsLink = document.querySelector(`#control__statistic`);
 const tasksLink = document.querySelector(`#control__task`);
 const loadingContainer = document.querySelector(`.board__no-tasks`);
-
-// const createTasks = (count, data) => {
-//   return new Array(count)
-//   .fill(``)
-//   .map(() => data());
-// };
-
-// const tasks = createTasks(TASKS_COUNT, task);
 
 const renderCards = (data) => {
   tasksContainer.innerHTML = ``;

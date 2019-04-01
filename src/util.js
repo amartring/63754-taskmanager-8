@@ -1,8 +1,8 @@
-const getRandomNumber = (min, max) => {
+export const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-const shuffleArray = (array) => {
+export const shuffleArray = (array) => {
   for (let i = array.length - 1; i > 0; i--) {
     const randomNumber = Math.floor(Math.random() * (i + 1));
     const temp = array[i];
@@ -12,7 +12,7 @@ const shuffleArray = (array) => {
   return array;
 };
 
-const getRandomArrayElements = (values, amount) => {
+export const getRandomArrayElements = (values, amount) => {
   const arrayCopy = Array.from(values);
   const newArray = [];
 
@@ -23,7 +23,7 @@ const getRandomArrayElements = (values, amount) => {
   return newArray;
 };
 
-const hexColor = {
+export const hexColor = {
   yellow: `#ffe125`,
   pink: `#ff3cb9`,
   blue: `#0c5cdd`,
@@ -34,5 +34,3 @@ const hexColor = {
   teal: `#008080`,
   skyblue: `#87ceeb`,
 };
-
-export {getRandomNumber, shuffleArray, getRandomArrayElements, hexColor};

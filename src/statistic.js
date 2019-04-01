@@ -1,5 +1,5 @@
 import Chart from 'chart.js';
-import {getChart} from './chart.js';
+import {getPieChart, getLineChart} from './chart.js';
 import moment from 'moment';
 import flatpickr from 'flatpickr';
 import Component from './component.js';
@@ -26,6 +26,26 @@ export default class Statistic extends Component {
   _getFilteredTasks() {
     return this._data.filter((it) =>
       moment(it.dueDate).isSameOrAfter(this._periodBegin) && moment(it.dueDate).isSameOrBefore(this._periodEnd));
+  }
+
+  _filterByDays() {
+    const data = {};
+
+    const filteredTasks = this._getFilteredTasks();
+    const allDays = filteredTasks.map((it) => moment(it.dueDate).format(`DD MMMM`));
+    const uniqueDays = new Set(allDays);
+    uniqueDays.forEach((it) => {
+      data[it] = allDays.filter((day) => day === it).length;
+    });
+
+    const compare = (firstDay, secondDay) => moment(firstDay[0]).format(`DD`) - moment(secondDay[0]).format(`DD`);
+    const arrayOfDays = Object.keys(data).map((key) => [key, data[key]]);
+
+    const datas = arrayOfDays.sort(compare);
+    const days = datas.map((it) => it[0]);
+    const daysCount = datas.map((it) => it[1]);
+
+    return [days, daysCount];
   }
 
   _filterByColors() {
@@ -63,22 +83,32 @@ export default class Statistic extends Component {
     return [tags, tagsCount, tagsBackgrounds];
   }
 
-  _addChartData(chart, label, data, color) {
-    chart.data.labels.push(label);
-    chart.data.datasets.forEach((dataset) => dataset.data.push(data));
-    chart.data.datasets.forEach((dataset) => dataset.backgroundColor.push(color));
-    chart.update();
-  }
-
   _createChart() {
+    const daysCtx = this._element.querySelector(`.statistic__days`);
     const colorsCtx = this._element.querySelector(`.statistic__colors`);
     const tagsCtx = this._element.querySelector(`.statistic__tags`);
 
+    const [daysLabels, daysDatas] = this._filterByDays();
     const [colorsLabels, colorsDatas, colorsBackgrounds] = this._filterByColors();
     const [tagsLabels, tagsDatas, tagsBackgrounds] = this._filterByTags();
 
-    this._colorsChart = new Chart(colorsCtx, getChart(`COLORS`));
-    this._tagsChart = new Chart(tagsCtx, getChart(`TAGS`));
+    this._daysChart = new Chart(daysCtx, getLineChart());
+    this._colorsChart = new Chart(colorsCtx, getPieChart(`COLORS`));
+    this._tagsChart = new Chart(tagsCtx, getPieChart(`TAGS`));
+
+    this._daysChart.data = {
+      labels: daysLabels,
+      datasets: [{
+        data: daysDatas,
+        backgroundColor: `transparent`,
+        borderColor: `#000000`,
+        borderWidth: 1,
+        lineTension: 0,
+        pointRadius: 8,
+        pointHoverRadius: 8,
+        pointBackgroundColor: `#000000`
+      }]
+    };
 
     this._colorsChart.data = {
       labels: colorsLabels,
@@ -96,6 +126,7 @@ export default class Statistic extends Component {
       }]
     };
 
+    this._daysChart.update();
     this._colorsChart.update();
     this._tagsChart.update();
   }
@@ -121,7 +152,7 @@ export default class Statistic extends Component {
             <span class="statistic__task-found">${this._filteredData.length}</span> tasks were fulfilled.
           </p>
         </div>
-        <div class="statistic__line-graphic visually-hidden">
+        <div class="statistic__line-graphic">
           <canvas class="statistic__days" width="550" height="150"></canvas>
         </div>
       </div>
@@ -167,6 +198,7 @@ export default class Statistic extends Component {
     this._periodBegin = moment(period[0], `DD MMM`).startOf(`day`);
     this._periodEnd = period.length > 1 ? moment(period[1], `DD MMM`).endOf(`day`) : moment(period[0], `DD MMM`).endOf(`day`);
 
+    this._daysChart.destroy();
     this._colorsChart.destroy();
     this._tagsChart.destroy();
     this._createChart();
