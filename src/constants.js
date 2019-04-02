@@ -28,3 +28,8 @@ export const HexColor = {
 };
 
 export const HIDDEN_CLASS = `visually-hidden`;
+
+export const Hashtag = {
+  PATTERN: /^#[А-Яа-яЁёA-Za-z]{2,7}$/,
+  MAX_COUNT: 5
+};

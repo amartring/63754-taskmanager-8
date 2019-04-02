@@ -44,7 +44,11 @@ export default class Task extends Component {
 
   get template() {
     return `
-  <article class="card card--${this._color} ${this._isRepeated() && ` card--repeat`}">
+  <article
+    class="card
+          card--${this._color}
+          ${this._isRepeated() && ` card--repeat`}
+          ${moment(this._dueDate).isBefore(moment().subtract(1, `second`)) && ` card--deadline`}">
     <div class="card__inner">
       <div class="card__control">
         <button type="button" class="card__btn card__btn--edit">

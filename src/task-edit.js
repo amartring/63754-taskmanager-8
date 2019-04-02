@@ -1,5 +1,5 @@
 import Component from './component.js';
-import {DateFormate} from './constants.js';
+import {DateFormate, Hashtag} from './constants.js';
 import flatpickr from 'flatpickr';
 import moment from 'moment';
 
@@ -25,6 +25,8 @@ export default class TaskEdit extends Component {
     this._onChangeDate = this._onChangeDate.bind(this);
     this._onChangeTime = this._onChangeTime.bind(this);
     this._onChangeRepeated = this._onChangeRepeated.bind(this);
+    this._onTagAdd = this._onTagAdd.bind(this);
+    // this._checkTegValidity = this._checkTegValidity.bind(this);
     this._onDeleteClick = this._onDeleteClick.bind(this);
     this._onEscPress = this._onEscPress.bind(this);
     // this._onFreePlaceClick = this._onFreePlaceClick.bind(this);
@@ -32,9 +34,6 @@ export default class TaskEdit extends Component {
     this._onSubmit = null;
     this._onDelete = null;
     this._onClose = null;
-
-    this._flatpickrDate = null;
-    this._flatpickrTime = null;
 
     this._state.isDate = this._dueDate !== false;
     this._state.isRepeated = false;
@@ -44,7 +43,7 @@ export default class TaskEdit extends Component {
     const entry = {
       title: ``,
       color: ``,
-      tags: new Set(),
+      tags: this._tags,
       dueDate: this._dueDate,
       time: ``,
       repeatingDays: {
@@ -76,6 +75,25 @@ export default class TaskEdit extends Component {
 
   _partialUpdate() {
     this._element.innerHTML = this.template;
+  }
+
+  _getTagsTemplate() {
+    return Array.from(this._tags).map((tag) => `
+      <span class="card__hashtag-inner">
+        <input
+          type="hidden"
+          name="hashtag"
+          value="${tag}"
+          class="card__hashtag-hidden-input"
+        />
+        <button type="button" class="card__hashtag-name">
+          #${tag}
+        </button>
+        <button type="button" class="card__hashtag-delete">
+          delete
+        </button>
+      </span>`)
+    .join(``);
   }
 
   _onChangeText() {
@@ -113,6 +131,47 @@ export default class TaskEdit extends Component {
     this._partialUpdate();
     this.bind();
   }
+
+  _onTagAdd(evt) {
+    const tagsList = this._element.querySelector(`.card__hashtag-list--inner`);
+    const tagField = this._element.querySelector(`.card__hashtag-input`);
+
+    if (evt.keyCode === 13 && tagField.value) {
+      const newTag = tagField.value;
+
+      this._tags.add(newTag);
+      tagField.value = ``;
+
+      tagsList.innerHTML = this._getTagsTemplate();
+      this.unbind();
+      this._partialUpdate();
+      this.bind();
+    }
+  }
+
+  // _checkTegValidity(evt) {
+  //   const target = evt.target;
+  //   const tagField = this._element.querySelector(`.card__hashtag-input`);
+
+  //   const checkTag = function (item, pattern) {
+  //     let counter = true;
+  //     if (!pattern.test(item)) {
+  //       counter = false;
+  //     }
+  //     return counter;
+  //   };
+
+  //   const newTag = tagField.value;
+
+  //   if (!checkTag(newTag, Hashtag.PATTERN)) {
+  //     target.setCustomValidity(`Хештег может содержать от 3 до 8 символов, включая #`);
+  //   } else {
+  //     target.setCustomValidity(``);
+  //   }
+  //   if (tagField.value === ``) {
+  //     target.setCustomValidity(``);
+  //   }
+  // }
 
   _onDeleteClick(evt) {
     evt.preventDefault();
@@ -171,7 +230,12 @@ export default class TaskEdit extends Component {
 
   get template() {
     return `
-  <article class="card card--edit card--${this._color} ${this._state.isRepeated && ` card--repeat`}">
+  <article
+    class="card
+          card--edit
+          card--${this._color}
+          ${this._state.isRepeated && ` card--repeat`}
+          ${moment(this._dueDate).isBefore(moment().subtract(1, `second`)) && ` card--deadline`}">
     <form class="card__form" method="get">
       <div class="card__inner">
         <div class="card__control">
@@ -259,22 +323,10 @@ export default class TaskEdit extends Component {
 
             <div class="card__hashtag">
               <div class="card__hashtag-list">
-                ${Array.from(this._tags).map((tag) => `
-                    <span class="card__hashtag-inner">
-                      <input
-                        type="hidden"
-                        name="hashtag"
-                        value="${tag}"
-                        class="card__hashtag-hidden-input"
-                      />
-                      <button type="button" class="card__hashtag-name">
-                        #${tag}
-                      </button>
-                      <button type="button" class="card__hashtag-delete">
-                        delete
-                      </button>
-                    </span>`)
-                  .join(``)}
+                <div class="card__hashtag-list card__hashtag-list--inner">
+                ${this._getTagsTemplate()}
+                </div>
+
                 <label>
                   <input type="text" class="card__hashtag-input" name="hashtag-input" placeholder="Type new hashtag here">
                 </label>
@@ -354,6 +406,10 @@ export default class TaskEdit extends Component {
         .addEventListener(`change`, this._onChangeTime);
     this._element.querySelector(`.card__repeat-toggle`)
         .addEventListener(`click`, this._onChangeRepeated);
+    this._element.querySelector(`.card__hashtag`)
+        .addEventListener(`keydown`, this._onTagAdd);
+    // this._element.querySelector(`.card__hashtag-input`)
+    //     .addEventListener(`input`, this._checkTegValidity);
     this._element.querySelector(`.card__delete`)
         .addEventListener(`click`, this._onDeleteClick);
     document.addEventListener(`keydown`, this._onEscPress);
@@ -392,6 +448,10 @@ export default class TaskEdit extends Component {
         .removeEventListener(`change`, this._onChangeTime);
     this._element.querySelector(`.card__repeat-toggle`)
         .removeEventListener(`click`, this._onChangeRepeated);
+    this._element.querySelector(`.card__hashtag`)
+        .removeEventListener(`keydown`, this._onTagAdd);
+    // this._element.querySelector(`.card__hashtag-input`)
+    //     .removeEventListener(`input`, this._checkTegValidity);
     this._element.querySelector(`.card__delete`)
         .removeEventListener(`click`, this._onDeleteClick);
     document.removeEventListener(`keydown`, this._onEscPress);
