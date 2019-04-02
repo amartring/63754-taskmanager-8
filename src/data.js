@@ -16,7 +16,7 @@ const getTags = () => {
   return shuffleArray([...tags]).splice(Math.floor(Math.random() * 5), Math.floor(Math.random() * 4));
 };
 
-const task = () => ({
+export const task = () => ({
   title: [
     `Изучить теорию`,
     `Сделать домашку`,
@@ -49,7 +49,27 @@ const task = () => ({
   isDone: [true, false][Math.floor(Math.random() * 2)],
 });
 
-const filters = [
+export const newTask = [{
+  'id': ``,
+  'title': ``,
+  'dueDate': moment(),
+  'tags': ``,
+  'picture': ``,
+  'color': `black`,
+  'repeating_days': {
+    'mo': false,
+    'tu': false,
+    'we': false,
+    'th': false,
+    'fr': false,
+    'sa': false,
+    'su': false,
+  },
+  'is_favorite': false,
+  'is_done': false,
+}];
+
+export const filters = [
   {
     name: `all`,
     isDisabled: false,
@@ -86,5 +106,3 @@ const filters = [
     isChecked: false,
   }
 ];
-
-export {task, filters};

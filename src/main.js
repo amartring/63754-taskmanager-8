@@ -1,10 +1,11 @@
 import moment from 'moment';
-import {filters} from './data.js';
+import {filters, newTask} from './data.js';
 import Task from './task.js';
 import TaskEdit from './task-edit.js';
 import Filter from './filter.js';
 import Statistic from './statistic.js';
 import API from './api.js';
+import {filterTasks} from './filter-tasks.js';
 import {HIDDEN_CLASS, VISIBLE_TASKS_NUMBER, Message} from './constants.js';
 
 const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
@@ -15,11 +16,12 @@ const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 const filterContainer = document.querySelector(`.filter`);
 const board = document.querySelector(`.board`);
 const tasksContainer = board.querySelector(`.board__tasks`);
+const tasksLoader = board.querySelector(`.load-more`);
 const statsContainer = document.querySelector(`.statistic`);
 const statsLink = document.querySelector(`#control__statistic`);
 const tasksLink = document.querySelector(`#control__task`);
 const loadingContainer = document.querySelector(`.board__no-tasks`);
-const tasksLoader = board.querySelector(`.load-more`);
+// const newTaskButton = document.querySelector(`#control__new-task`);
 
 const setupTasksLoader = function () {
   const invisibleTasks = tasksContainer.querySelectorAll(`.card.${HIDDEN_CLASS}`);
@@ -43,8 +45,14 @@ const onLoaderClick = () => {
   setupTasksLoader();
 };
 
+// const onNewTaskButtonClick = () => {
+  // const task = renderTasks(newTask);
+  // api.createTask({newTask});
+  // return task;
+// };
+
 const renderTasks = (data) => {
-  tasksContainer.innerHTML = ``;
+  // tasksContainer.innerHTML = ``;
   data.forEach((item) => {
     const taskComponent = new Task(item);
     const editTaskComponent = new TaskEdit(item);
@@ -54,12 +62,12 @@ const renderTasks = (data) => {
         item = Object.assign(item, newObject);
 
         api.updateTask({id: item.id, data: item.toRAW()})
-        .then((newTask) => {
+        .then((updatedTask) => {
           editTaskComponent.unblock();
-          taskComponent.update(newTask);
+          taskComponent.update(updatedTask);
           taskComponent.render();
           tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
-          editTaskComponent.update(newTask);
+          editTaskComponent.update(updatedTask);
           editTaskComponent.unrender();
           renderStatistic(data);
         })
@@ -95,38 +103,6 @@ const renderTasks = (data) => {
 
     tasksContainer.appendChild(taskComponent.render());
   });
-};
-
-const filterTasks = (data, filterName) => {
-  let filteredTasks = data;
-
-  switch (filterName) {
-    case `all`:
-      filteredTasks = data;
-      break;
-
-    case `overdue`:
-      filteredTasks = data.filter((it) => moment(it.dueDate).isBefore(moment().subtract(1, `day`)));
-      break;
-
-    case `today`:
-      filteredTasks = data.filter((it) => moment(it.dueDate).format(`D MMMM YYYY`) === moment().format(`D MMMM YYYY`));
-      break;
-
-    case `favorites`:
-      filteredTasks = data.filter((it) => it.isFavorite);
-      break;
-
-    case `repeating`:
-      filteredTasks = data.filter((it) => [...Object.entries(it.repeatingDays)]
-          .some((rec) => rec[1]));
-      break;
-
-    case `tags`:
-      filteredTasks = data.filter((it) => [...it.tags].length);
-      break;
-  }
-  return filteredTasks;
 };
 
 const renderFilters = (filtersData, tasksData) => {
@@ -187,5 +163,6 @@ api.getTasks()
 statsLink.addEventListener(`click`, onStatisticClick);
 tasksLink.addEventListener(`click`, onTasksClick);
 tasksLoader.addEventListener(`click`, onLoaderClick);
+// newTaskButton.addEventListener(`click`, onNewTaskButtonClick);
 
-// console.log(api.getTasks());
+console.log(api.getTasks());

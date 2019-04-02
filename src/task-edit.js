@@ -26,6 +26,7 @@ export default class TaskEdit extends Component {
     this._onChangeTime = this._onChangeTime.bind(this);
     this._onChangeRepeated = this._onChangeRepeated.bind(this);
     this._onTagAdd = this._onTagAdd.bind(this);
+    this._onTagDelete = this._onTagDelete.bind(this);
     // this._checkTegValidity = this._checkTegValidity.bind(this);
     this._onDeleteClick = this._onDeleteClick.bind(this);
     this._onEscPress = this._onEscPress.bind(this);
@@ -36,7 +37,7 @@ export default class TaskEdit extends Component {
     this._onClose = null;
 
     this._state.isDate = this._dueDate !== false;
-    this._state.isRepeated = false;
+    this._state.isRepeated = this._isRepeated();
   }
 
   _processForm(formData) {
@@ -78,25 +79,6 @@ export default class TaskEdit extends Component {
     this._element.innerHTML = this.template;
   }
 
-  _getTagsTemplate() {
-    return Array.from(this._tags).map((tag) => `
-      <span class="card__hashtag-inner">
-        <input
-          type="hidden"
-          name="hashtag"
-          value="${tag}"
-          class="card__hashtag-hidden-input"
-        />
-        <button type="button" class="card__hashtag-name">
-          #${tag}
-        </button>
-        <button type="button" class="card__hashtag-delete">
-          delete
-        </button>
-      </span>`)
-    .join(``);
-  }
-
   _onChangeText() {
     this._title = this._element.querySelector(`.card__text`).value;
     this.unbind();
@@ -133,6 +115,25 @@ export default class TaskEdit extends Component {
     this.bind();
   }
 
+  _getTagsTemplate() {
+    return Array.from(this._tags).map((tag) => `
+      <span class="card__hashtag-inner">
+        <input
+          type="hidden"
+          name="hashtag"
+          value="${tag}"
+          class="card__hashtag-hidden-input"
+        />
+        <button type="button" class="card__hashtag-name">
+          #${tag}
+        </button>
+        <button type="button" id="tag-delete" class="card__hashtag-delete">
+          delete
+        </button>
+      </span>`)
+    .join(``);
+  }
+
   _onTagAdd(evt) {
     const tagsList = this._element.querySelector(`.card__hashtag-list--inner`);
     const tagField = this._element.querySelector(`.card__hashtag-input`);
@@ -147,6 +148,19 @@ export default class TaskEdit extends Component {
       this.unbind();
       this._partialUpdate();
       this.bind();
+    }
+  }
+
+  _onTagDelete(evt) {
+    const target = evt.target;
+    if (target.id === `tag-delete`) {
+      const tagsList = this._element.querySelector(`.card__hashtag-list--inner`);
+      const tagElement = target.parentNode.querySelector(`input`);
+      const tagsArray = Array.from(this._tags);
+      const index = tagsArray.indexOf(tagElement.value);
+      tagsArray.splice(index, 1);
+      this._tags = new Set(tagsArray);
+      tagsList.innerHTML = this._getTagsTemplate();
     }
   }
 
@@ -409,6 +423,8 @@ export default class TaskEdit extends Component {
         .addEventListener(`click`, this._onChangeRepeated);
     this._element.querySelector(`.card__hashtag`)
         .addEventListener(`keydown`, this._onTagAdd);
+    this._element.querySelector(`.card__hashtag`)
+        .addEventListener(`click`, this._onTagDelete);
     // this._element.querySelector(`.card__hashtag-input`)
     //     .addEventListener(`input`, this._checkTegValidity);
     this._element.querySelector(`.card__delete`)
@@ -451,6 +467,8 @@ export default class TaskEdit extends Component {
         .removeEventListener(`click`, this._onChangeRepeated);
     this._element.querySelector(`.card__hashtag`)
         .removeEventListener(`keydown`, this._onTagAdd);
+    this._element.querySelector(`.card__hashtag`)
+        .removeEventListener(`click`, this._onTagDelete);
     // this._element.querySelector(`.card__hashtag-input`)
     //     .removeEventListener(`input`, this._checkTegValidity);
     this._element.querySelector(`.card__delete`)
