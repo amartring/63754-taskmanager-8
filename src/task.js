@@ -19,6 +19,7 @@ export default class Task extends Component {
     this._isDone = data.isDone;
 
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
+    this._onFavoriteClick = this._onFavoriteClick.bind(this);
     this._onTextareaClick = this._onTextareaClick.bind(this);
 
     this._onEdit = null;
@@ -26,6 +27,17 @@ export default class Task extends Component {
 
   _isRepeated() {
     return Object.values(this._repeatingDays).some((item) => item === true);
+  }
+
+  _partialUpdate() {
+    this._element.innerHTML = this.template;
+  }
+
+  _onFavoriteClick() {
+    this._isFavorite = !this._isFavorite;
+    this.unbind();
+    this._partialUpdate();
+    this.bind();
   }
 
   _onTextareaClick(evt) {
@@ -48,7 +60,7 @@ export default class Task extends Component {
     class="card
           card--${this._color}
           ${this._isRepeated() && ` card--repeat`}
-          ${moment(this._dueDate).isBefore(moment().subtract(1, `second`)) && ` card--deadline`}">
+          ${moment(this._dueDate).isBefore(moment().subtract(1, `day`)) && ` card--deadline`}">
     <div class="card__inner">
       <div class="card__control">
         <button type="button" class="card__btn card__btn--edit">
@@ -135,6 +147,8 @@ export default class Task extends Component {
   bind() {
     this._element.querySelector(`.card__btn--edit`)
         .addEventListener(`click`, this._onEditButtonClick);
+    this._element.querySelector(`.card__btn--favorites`)
+        .addEventListener(`click`, this._onFavoriteClick);
     this._element.querySelector(`.card__text`)
         .addEventListener(`click`, this._onTextareaClick);
   }
@@ -142,6 +156,8 @@ export default class Task extends Component {
   unbind() {
     this._element.querySelector(`.card__btn--edit`)
         .removeEventListener(`click`, this._onEditButtonClick);
+    this._element.querySelector(`.card__btn--favorites`)
+        .removeEventListener(`click`, this._onFavoriteClick);
     this._element.querySelector(`.card__text`)
         .removeEventListener(`click`, this._onTextareaClick);
   }
@@ -153,5 +169,6 @@ export default class Task extends Component {
     this._repeatingDays = data.repeatingDays;
     this._dueDate = data.dueDate;
     this._time = data.time;
+    this._isFavorite = data.isFavorite;
   }
 }

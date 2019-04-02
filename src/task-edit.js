@@ -55,6 +55,7 @@ export default class TaskEdit extends Component {
         'sa': false,
         'su': false,
       },
+      isFavorite: this._isFavorite,
     };
 
     const taskEditMapper = TaskEdit.createMapper(entry);
@@ -235,7 +236,7 @@ export default class TaskEdit extends Component {
           card--edit
           card--${this._color}
           ${this._state.isRepeated && ` card--repeat`}
-          ${moment(this._dueDate).isBefore(moment().subtract(1, `second`)) && ` card--deadline`}">
+          ${moment(this._dueDate).isBefore(moment().subtract(1, `day`)) && ` card--deadline`}">
     <form class="card__form" method="get">
       <div class="card__inner">
         <div class="card__control">
@@ -468,6 +469,7 @@ export default class TaskEdit extends Component {
     this._tags = data.tags;
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
+    this._isFavorite = data.isFavorite;
   }
 
   static createMapper(target) {

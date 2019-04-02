@@ -67,7 +67,7 @@ const filters = [
   },
   {
     name: `favorites`,
-    isDisabled: true,
+    isDisabled: false,
     isChecked: false,
   },
   {

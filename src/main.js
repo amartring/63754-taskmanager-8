@@ -5,7 +5,7 @@ import TaskEdit from './task-edit.js';
 import Filter from './filter.js';
 import Statistic from './statistic.js';
 import API from './api.js';
-import {HIDDEN_CLASS, Message} from './constants.js';
+import {HIDDEN_CLASS, VISIBLE_TASKS_NUMBER, Message} from './constants.js';
 
 const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
 const END_POINT = `https://es8-demo-srv.appspot.com/task-manager`;
@@ -19,8 +19,31 @@ const statsContainer = document.querySelector(`.statistic`);
 const statsLink = document.querySelector(`#control__statistic`);
 const tasksLink = document.querySelector(`#control__task`);
 const loadingContainer = document.querySelector(`.board__no-tasks`);
+const tasksLoader = board.querySelector(`.load-more`);
 
-const renderCards = (data) => {
+const setupTasksLoader = function () {
+  const invisibleTasks = tasksContainer.querySelectorAll(`.card.${HIDDEN_CLASS}`);
+  return invisibleTasks.length === 0
+    ? tasksLoader.classList.add(HIDDEN_CLASS)
+    : tasksLoader.classList.remove(HIDDEN_CLASS);
+};
+
+const hideExtraTasks = () => {
+  const tasks = tasksContainer.querySelectorAll(`.card`);
+  tasks.forEach((task, index) => {
+    return index >= VISIBLE_TASKS_NUMBER && task.classList.add(HIDDEN_CLASS);
+  });
+};
+
+const onLoaderClick = () => {
+  const invisibleTasks = tasksContainer.querySelectorAll(`.card.${HIDDEN_CLASS}`);
+  for (let i = 0; i < invisibleTasks.length && i < VISIBLE_TASKS_NUMBER; i++) {
+    invisibleTasks[i].classList.remove(HIDDEN_CLASS);
+  }
+  setupTasksLoader();
+};
+
+const renderTasks = (data) => {
   tasksContainer.innerHTML = ``;
   data.forEach((item) => {
     const taskComponent = new Task(item);
@@ -50,7 +73,7 @@ const renderCards = (data) => {
         api.deleteTask({id: item.id})
           .then(() => api.getTasks())
           .then((cards) => {
-            renderCards(cards);
+            renderTasks(cards);
             renderStatistic(cards);
           })
           .catch(() => {
@@ -90,6 +113,10 @@ const filterTasks = (data, filterName) => {
       filteredTasks = data.filter((it) => moment(it.dueDate).format(`D MMMM YYYY`) === moment().format(`D MMMM YYYY`));
       break;
 
+    case `favorites`:
+      filteredTasks = data.filter((it) => it.isFavorite);
+      break;
+
     case `repeating`:
       filteredTasks = data.filter((it) => [...Object.entries(it.repeatingDays)]
           .some((rec) => rec[1]));
@@ -109,7 +136,7 @@ const renderFilters = (filtersData, tasksData) => {
     filterComponent.onFilter = () => {
       const filteredTasks = filterTasks(tasksData, filterComponent._name);
       tasksContainer.innerHTML = ``;
-      renderCards(filteredTasks);
+      renderTasks(filteredTasks);
     };
 
     filterContainer.appendChild(filterComponent.render());
@@ -147,7 +174,9 @@ showLoadingMessage(Message.LOADING);
 api.getTasks()
   .then((cards) => {
     hideLoadingMessage();
-    renderCards(cards);
+    renderTasks(cards);
+    hideExtraTasks();
+    setupTasksLoader();
     renderFilters(filters, cards);
     renderStatistic(cards);
   })
@@ -157,3 +186,6 @@ api.getTasks()
 
 statsLink.addEventListener(`click`, onStatisticClick);
 tasksLink.addEventListener(`click`, onTasksClick);
+tasksLoader.addEventListener(`click`, onLoaderClick);
+
+// console.log(api.getTasks());
