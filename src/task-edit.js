@@ -27,7 +27,7 @@ export default class TaskEdit extends Component {
     this._onChangeRepeated = this._onChangeRepeated.bind(this);
     this._onTagAdd = this._onTagAdd.bind(this);
     this._onTagDelete = this._onTagDelete.bind(this);
-    // this._checkTegValidity = this._checkTegValidity.bind(this);
+    this._checkTegValidity = this._checkTegValidity.bind(this);
     this._onDeleteClick = this._onDeleteClick.bind(this);
     this._onEscPress = this._onEscPress.bind(this);
     // this._onFreePlaceClick = this._onFreePlaceClick.bind(this);
@@ -133,25 +133,51 @@ export default class TaskEdit extends Component {
     .join(``);
   }
 
+  _checkTag(item, pattern) {
+    let counter = true;
+    if (!pattern.test(item)) {
+      counter = false;
+    }
+    return counter;
+  }
+
   _onTagAdd(evt) {
+    const target = evt.target;
     const tagsList = this._element.querySelector(`.card__hashtag-list--inner`);
     const tagField = this._element.querySelector(`.card__hashtag-input`);
 
     if (evt.keyCode === 13 && tagField.value) {
       const newTag = tagField.value;
 
-      this._tags.add(newTag);
-      tagField.value = ``;
+      if (this._checkTag(newTag, Hashtag.PATTERN)) {
+        this._tags.add(newTag);
+        tagField.value = ``;
 
-      tagsList.innerHTML = this._getTagsTemplate();
-      this.unbind();
-      this._partialUpdate();
-      this.bind();
+        tagsList.innerHTML = this._getTagsTemplate();
+        this.unbind();
+        this._partialUpdate();
+        this.bind();
+      }
     }
 
     if (Array.from(this._tags).length >= 5) {
       tagField.disabled = true;
-      tagField.placeholder = `You can type only 5 tags`;
+      tagField.placeholder = `You can add only 5 tags`;
+    }
+  }
+
+  _checkTegValidity(evt) {
+    const target = evt.target;
+    const tagField = this._element.querySelector(`.card__hashtag-input`);
+    const newTag = tagField.value;
+
+    if (!this._checkTag(newTag, Hashtag.PATTERN)) {
+      target.setCustomValidity(`Tag length must be from 2 to 7 letters`);
+    } else {
+      target.setCustomValidity(``);
+    }
+    if (tagField.value === ``) {
+      target.setCustomValidity(``);
     }
   }
 
@@ -167,30 +193,6 @@ export default class TaskEdit extends Component {
       tagsList.innerHTML = this._getTagsTemplate();
     }
   }
-
-  // _checkTegValidity(evt) {
-  //   const target = evt.target;
-  //   const tagField = this._element.querySelector(`.card__hashtag-input`);
-
-  //   const checkTag = function (item, pattern) {
-  //     let counter = true;
-  //     if (!pattern.test(item)) {
-  //       counter = false;
-  //     }
-  //     return counter;
-  //   };
-
-  //   const newTag = tagField.value;
-
-  //   if (!checkTag(newTag, Hashtag.PATTERN)) {
-  //     target.setCustomValidity(`Хештег может содержать от 3 до 8 символов, включая #`);
-  //   } else {
-  //     target.setCustomValidity(``);
-  //   }
-  //   if (tagField.value === ``) {
-  //     target.setCustomValidity(``);
-  //   }
-  // }
 
   _onDeleteClick(evt) {
     evt.preventDefault();
@@ -283,8 +285,7 @@ export default class TaskEdit extends Component {
 
         <div class="card__textarea-wrap">
           <label>
-            <textarea class="card__text" placeholder="Start typing your text here..." name="text">${this._title}
-            </textarea>
+            <textarea class="card__text" placeholder="Start typing your text here..." name="text" maxlength="140">${this._title}  </textarea>
           </label>
         </div>
 
@@ -352,7 +353,8 @@ export default class TaskEdit extends Component {
                 ${this._getTagsTemplate()}
                 </div>
                 <label>
-                  <input type="text" class="card__hashtag-input" name="hashtag-input" placeholder="Type new hashtag here">
+                  <input type="text" class="card__hashtag-input" name="hashtag-input" maxlength="7"
+                    placeholder="Type new hashtag here" title="Tag length must be from 2 to 7 letters">
                 </label>
               </div>
             </div>
@@ -434,8 +436,8 @@ export default class TaskEdit extends Component {
         .addEventListener(`keydown`, this._onTagAdd);
     this._element.querySelector(`.card__hashtag`)
         .addEventListener(`click`, this._onTagDelete);
-    // this._element.querySelector(`.card__hashtag-input`)
-    //     .addEventListener(`input`, this._checkTegValidity);
+    this._element.querySelector(`.card__hashtag-input`)
+        .addEventListener(`input`, this._checkTegValidity);
     this._element.querySelector(`.card__delete`)
         .addEventListener(`click`, this._onDeleteClick);
     document.addEventListener(`keydown`, this._onEscPress);
@@ -478,8 +480,8 @@ export default class TaskEdit extends Component {
         .removeEventListener(`keydown`, this._onTagAdd);
     this._element.querySelector(`.card__hashtag`)
         .removeEventListener(`click`, this._onTagDelete);
-    // this._element.querySelector(`.card__hashtag-input`)
-    //     .removeEventListener(`input`, this._checkTegValidity);
+    this._element.querySelector(`.card__hashtag-input`)
+        .removeEventListener(`input`, this._checkTegValidity);
     this._element.querySelector(`.card__delete`)
         .removeEventListener(`click`, this._onDeleteClick);
     document.removeEventListener(`keydown`, this._onEscPress);

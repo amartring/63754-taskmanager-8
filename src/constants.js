@@ -32,6 +32,5 @@ export const HIDDEN_CLASS = `visually-hidden`;
 export const VISIBLE_TASKS_NUMBER = 8;
 
 export const Hashtag = {
-  PATTERN: /^#[А-Яа-яЁёA-Za-z]{2,7}$/,
-  MAX_COUNT: 5
+  PATTERN: /^[А-Яа-яЁёA-Za-z]{2,7}$/
 };

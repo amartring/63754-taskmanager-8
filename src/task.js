@@ -96,8 +96,7 @@ export default class Task extends Component {
 
       <div class="card__textarea-wrap">
         <label>
-          <textarea class="card__text" placeholder="Start typing your text here..." name="text">${this._title}
-          </textarea>
+          <textarea class="card__text" placeholder="Start typing your text here..." name="text" maxlength="140">${this._title}</textarea>
         </label>
       </div>
 
