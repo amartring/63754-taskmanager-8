@@ -1,11 +1,10 @@
-import moment from 'moment';
 import {filters, newTask} from './data.js';
 import Task from './task.js';
 import TaskEdit from './task-edit.js';
 import Filter from './filter.js';
 import Statistic from './statistic.js';
 import API from './api.js';
-import {filterTasks} from './filter-tasks.js';
+import {filterTasks, filterByTag} from './filter-tasks.js';
 import {HIDDEN_CLASS, VISIBLE_TASKS_NUMBER, Message} from './constants.js';
 
 const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
@@ -22,6 +21,9 @@ const statsLink = document.querySelector(`#control__statistic`);
 const tasksLink = document.querySelector(`#control__task`);
 const loadingContainer = document.querySelector(`.board__no-tasks`);
 // const newTaskButton = document.querySelector(`#control__new-task`);
+const result = document.querySelector(`.result`);
+const resultContainer = result.querySelector(`.result__cards`);
+const resultBackLink = result.querySelector(`.result__back`);
 
 const setupTasksLoader = function () {
   const invisibleTasks = tasksContainer.querySelectorAll(`.card.${HIDDEN_CLASS}`);
@@ -46,12 +48,12 @@ const onLoaderClick = () => {
 };
 
 // const onNewTaskButtonClick = () => {
-  // const task = renderTasks(newTask);
-  // api.createTask({newTask});
-  // return task;
+// const task = renderTasks(newTask);
+// api.createTask({newTask});
+// return task;
 // };
 
-const renderTasks = (data) => {
+const renderTasks = (data, container) => {
   // tasksContainer.innerHTML = ``;
   data.forEach((item) => {
     const taskComponent = new Task(item);
@@ -66,7 +68,7 @@ const renderTasks = (data) => {
           editTaskComponent.unblock();
           taskComponent.update(updatedTask);
           taskComponent.render();
-          tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
+          container.replaceChild(taskComponent.element, editTaskComponent.element);
           editTaskComponent.update(updatedTask);
           editTaskComponent.unrender();
           renderStatistic(data);
@@ -81,7 +83,7 @@ const renderTasks = (data) => {
         api.deleteTask({id: item.id})
           .then(() => api.getTasks())
           .then((cards) => {
-            renderTasks(cards);
+            renderTasks(cards, tasksContainer);
             renderStatistic(cards);
           })
           .catch(() => {
@@ -92,18 +94,33 @@ const renderTasks = (data) => {
 
       editTaskComponent.onClose = () => {
         taskComponent.render();
-        tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
+        container.replaceChild(taskComponent.element, editTaskComponent.element);
         editTaskComponent.unrender();
       };
 
       editTaskComponent.render();
-      tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
+      container.replaceChild(editTaskComponent.element, taskComponent.element);
       taskComponent.unrender();
     };
 
-    tasksContainer.appendChild(taskComponent.render());
+    taskComponent.onTag = (tag) => {
+      resultContainer.innerHTML = ``;
+      const filteredTasks = filterByTag(data, tag);
+      renderTasks(filteredTasks, resultContainer);
+      filteredTasks.length > 0 && result.querySelector(`.result__empty`).classList.add(HIDDEN_CLASS);
+      result.querySelector(`.result__title`).textContent = `#${tag.toUpperCase()}`;
+      board.classList.add(HIDDEN_CLASS);
+      result.classList.remove(HIDDEN_CLASS);
+    };
+
+    container.appendChild(taskComponent.render());
   });
 };
+
+// const clearResult = () => {
+//   const results = resultContainer.querySelectorAll(`.card`);
+//   results.forEach((it) =>resultContainer.removeChild(it));
+// };
 
 const renderFilters = (filtersData, tasksData) => {
   filtersData.forEach((item) => {
@@ -112,7 +129,7 @@ const renderFilters = (filtersData, tasksData) => {
     filterComponent.onFilter = () => {
       const filteredTasks = filterTasks(tasksData, filterComponent._name);
       tasksContainer.innerHTML = ``;
-      renderTasks(filteredTasks);
+      renderTasks(filteredTasks, tasksContainer);
     };
 
     filterContainer.appendChild(filterComponent.render());
@@ -132,8 +149,14 @@ const onStatisticClick = () => {
 };
 
 const onTasksClick = () => {
-  board.classList.remove(HIDDEN_CLASS);
   statsContainer.classList.add(HIDDEN_CLASS);
+  result.classList.add(HIDDEN_CLASS);
+  board.classList.remove(HIDDEN_CLASS);
+};
+
+const onResultBackClick = () => {
+  result.classList.add(HIDDEN_CLASS);
+  board.classList.remove(HIDDEN_CLASS);
 };
 
 const showLoadingMessage = (text) => {
@@ -150,7 +173,7 @@ showLoadingMessage(Message.LOADING);
 api.getTasks()
   .then((cards) => {
     hideLoadingMessage();
-    renderTasks(cards);
+    renderTasks(cards, tasksContainer);
     hideExtraTasks();
     setupTasksLoader();
     renderFilters(filters, cards);
@@ -162,7 +185,8 @@ api.getTasks()
 
 statsLink.addEventListener(`click`, onStatisticClick);
 tasksLink.addEventListener(`click`, onTasksClick);
+resultBackLink.addEventListener(`click`, onResultBackClick);
 tasksLoader.addEventListener(`click`, onLoaderClick);
 // newTaskButton.addEventListener(`click`, onNewTaskButtonClick);
 
-console.log(api.getTasks());
+// console.log(api.getTasks());

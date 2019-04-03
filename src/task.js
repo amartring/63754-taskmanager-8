@@ -21,8 +21,10 @@ export default class Task extends Component {
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
     this._onFavoriteClick = this._onFavoriteClick.bind(this);
     this._onTextareaClick = this._onTextareaClick.bind(this);
+    this._onTagClick = this._onTagClick.bind(this);
 
     this._onEdit = null;
+    this._onTag = null;
   }
 
   _isRepeated() {
@@ -40,6 +42,14 @@ export default class Task extends Component {
     this.bind();
   }
 
+  _onTagClick(evt) {
+    const target = evt.target;
+    if (target.type === `button`) {
+      const tag = target.value;
+      return typeof this._onTag === `function` && this._onTag(tag);
+    }
+  }
+
   _onTextareaClick(evt) {
     evt.preventDefault();
     return typeof this._onEdit === `function` && this._onEdit();
@@ -48,6 +58,10 @@ export default class Task extends Component {
   _onEditButtonClick(evt) {
     evt.preventDefault();
     return typeof this._onEdit === `function` && this._onEdit();
+  }
+
+  set onTag(fn) {
+    this._onTag = fn;
   }
 
   set onEdit(fn) {
@@ -120,12 +134,7 @@ export default class Task extends Component {
                     value="${tag}"
                     class="card__hashtag-hidden-input"
                   />
-                  <button type="button" class="card__hashtag-name">
-                    #${tag}
-                  </button>
-                  <button type="button" class="card__hashtag-delete">
-                    delete
-                  </button>
+                  <button type="button" class="card__hashtag-name" value="${tag}">#${tag}</button>
                 </span>`)
               .join(``)}
               <label>
@@ -151,6 +160,8 @@ export default class Task extends Component {
         .addEventListener(`click`, this._onFavoriteClick);
     this._element.querySelector(`.card__text`)
         .addEventListener(`click`, this._onTextareaClick);
+    this._element.querySelector(`.card__hashtag-list`)
+        .addEventListener(`click`, this._onTagClick);
   }
 
   unbind() {
@@ -160,6 +171,8 @@ export default class Task extends Component {
         .removeEventListener(`click`, this._onFavoriteClick);
     this._element.querySelector(`.card__text`)
         .removeEventListener(`click`, this._onTextareaClick);
+    this._element.querySelector(`.card__hashtag-list`)
+        .removeEventListener(`click`, this._onTagClick);
   }
 
   update(data) {

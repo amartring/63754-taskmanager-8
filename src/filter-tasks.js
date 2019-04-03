@@ -32,3 +32,7 @@ export const filterTasks = (data, filterName) => {
   }
   return filteredTasks;
 };
+
+export const filterByTag = (data, tag) => {
+  return data.filter((it) => Array.from(it.tags).indexOf(tag) >= 0);
+};
