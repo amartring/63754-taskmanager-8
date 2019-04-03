@@ -102,7 +102,7 @@ export const filters = [
   },
   {
     name: `archive`,
-    isDisabled: true,
+    isDisabled: false,
     isChecked: false,
   }
 ];

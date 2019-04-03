@@ -228,6 +228,10 @@ body {
 .card__btn--archive {
   margin-right: auto;
 }
+.card__btn--active {
+  border-bottom: 2px solid green;
+  color: green;
+}
 .card__btn--disabled {
   color: #e7e3e3;
 }

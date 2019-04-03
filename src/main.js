@@ -114,6 +114,14 @@ const renderTasks = (data, container) => {
       result.classList.remove(HIDDEN_CLASS);
     };
 
+    taskComponent.onChange = (newObject) => {
+      item = Object.assign(item, newObject);
+      api.updateTask({id: item.id, data: item.toRAW()})
+        .then((updatedTask) => {
+          taskComponent.update(updatedTask);
+        });
+    };
+
     container.appendChild(taskComponent.render());
   });
 };

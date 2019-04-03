@@ -20,6 +20,8 @@ export default class TaskEdit extends Component {
     this._isDone = data.isDone;
 
     this._onSaveClick = this._onSaveClick.bind(this);
+    this._onFavoriteClick = this._onFavoriteClick.bind(this);
+    this._onArchiveClick = this._onArchiveClick.bind(this);
     this._onChangeText = this._onChangeText.bind(this);
     this._onChangeDateState = this._onChangeDateState.bind(this);
     this._onChangeDate = this._onChangeDate.bind(this);
@@ -57,6 +59,7 @@ export default class TaskEdit extends Component {
         'su': false,
       },
       isFavorite: this._isFavorite,
+      isDone: this._isDone,
     };
 
     const taskEditMapper = TaskEdit.createMapper(entry);
@@ -76,6 +79,20 @@ export default class TaskEdit extends Component {
 
   _partialUpdate() {
     this._element.innerHTML = this.template;
+  }
+
+  _onFavoriteClick() {
+    this._isFavorite = !this._isFavorite;
+    this.unbind();
+    this._partialUpdate();
+    this.bind();
+  }
+
+  _onArchiveClick() {
+    this._isDone = !this._isDone;
+    this.unbind();
+    this._partialUpdate();
+    this.bind();
   }
 
   _onChangeText() {
@@ -142,7 +159,6 @@ export default class TaskEdit extends Component {
   }
 
   _onTagAdd(evt) {
-    const target = evt.target;
     const tagsList = this._element.querySelector(`.card__hashtag-list--inner`);
     const tagField = this._element.querySelector(`.card__hashtag-input`);
 
@@ -269,10 +285,10 @@ export default class TaskEdit extends Component {
           <button type="button" class="card__btn card__btn--edit">
             edit
           </button>
-          <button type="button" class="card__btn card__btn--archive">
+          <button type="button" class="card__btn card__btn--archive ${this._isDone && ` card__btn--active`}">
             archive
           </button>
-          <button type="button" class="card__btn card__btn--favorites">
+          <button type="button" class="card__btn card__btn--favorites ${this._isFavorite && ` card__btn--active`}">
             favorites
           </button>
         </div>
@@ -422,6 +438,10 @@ export default class TaskEdit extends Component {
   bind() {
     this._element.querySelector(`.card__form`)
         .addEventListener(`submit`, this._onSaveClick);
+    this._element.querySelector(`.card__btn--archive`)
+        .addEventListener(`click`, this._onArchiveClick);
+    this._element.querySelector(`.card__btn--favorites`)
+        .addEventListener(`click`, this._onFavoriteClick);
     this._element.querySelector(`.card__text`)
         .addEventListener(`change`, this._onChangeText);
     this._element.querySelector(`.card__date-deadline-toggle`)
@@ -466,6 +486,10 @@ export default class TaskEdit extends Component {
   unbind() {
     this._element.querySelector(`.card__form`)
         .removeEventListener(`submit`, this._onSaveClick);
+    this._element.querySelector(`.card__btn--archive`)
+        .removeEventListener(`click`, this._onArchiveClick);
+    this._element.querySelector(`.card__btn--favorites`)
+        .removeEventListener(`click`, this._onFavoriteClick);
     this._element.querySelector(`.card__text`)
         .removeEventListener(`change`, this._onChangeText);
     this._element.querySelector(`.card__date-deadline-toggle`)
@@ -499,6 +523,7 @@ export default class TaskEdit extends Component {
     this._color = data.color;
     this._repeatingDays = data.repeatingDays;
     this._isFavorite = data.isFavorite;
+    this._isDone = data.isDone;
   }
 
   static createMapper(target) {

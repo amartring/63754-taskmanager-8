@@ -29,6 +29,10 @@ export const filterTasks = (data, filterName) => {
     case `tags`:
       filteredTasks = data.filter((it) => [...it.tags].length);
       break;
+
+    case `archive`:
+      filteredTasks = data.filter((it) => it.isDone);
+      break;
   }
   return filteredTasks;
 };

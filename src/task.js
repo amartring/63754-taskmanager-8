@@ -20,15 +20,24 @@ export default class Task extends Component {
 
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
     this._onFavoriteClick = this._onFavoriteClick.bind(this);
+    this._onArchiveClick = this._onArchiveClick.bind(this);
     this._onTextareaClick = this._onTextareaClick.bind(this);
     this._onTagClick = this._onTagClick.bind(this);
 
     this._onEdit = null;
     this._onTag = null;
+    this._onChange = null;
   }
 
   _isRepeated() {
     return Object.values(this._repeatingDays).some((item) => item === true);
+  }
+
+  _processElement() {
+    return {
+      isFavorite: this._isFavorite,
+      isDone: this._isDone,
+    };
   }
 
   _partialUpdate() {
@@ -40,6 +49,23 @@ export default class Task extends Component {
     this.unbind();
     this._partialUpdate();
     this.bind();
+
+    const newData = this._processElement();
+    if (typeof this._onChange === `function`) {
+      this._onChange(newData);
+    }
+  }
+
+  _onArchiveClick() {
+    this._isDone = !this._isDone;
+    this.unbind();
+    this._partialUpdate();
+    this.bind();
+
+    const newData = this._processElement();
+    if (typeof this._onChange === `function`) {
+      this._onChange(newData);
+    }
   }
 
   _onTagClick(evt) {
@@ -58,6 +84,10 @@ export default class Task extends Component {
   _onEditButtonClick(evt) {
     evt.preventDefault();
     return typeof this._onEdit === `function` && this._onEdit();
+  }
+
+  set onChange(fn) {
+    this._onChange = fn;
   }
 
   set onTag(fn) {
@@ -80,10 +110,10 @@ export default class Task extends Component {
         <button type="button" class="card__btn card__btn--edit">
           edit
         </button>
-        <button type="button" class="card__btn card__btn--archive">
+        <button type="button" class="card__btn card__btn--archive ${this._isDone && ` card__btn--active`}">
           archive
         </button>
-        <button type="button" class="card__btn card__btn--favorites">
+        <button type="button" class="card__btn card__btn--favorites ${this._isFavorite && ` card__btn--active`}">
           favorites
         </button>
       </div>
@@ -157,6 +187,8 @@ export default class Task extends Component {
         .addEventListener(`click`, this._onEditButtonClick);
     this._element.querySelector(`.card__btn--favorites`)
         .addEventListener(`click`, this._onFavoriteClick);
+    this._element.querySelector(`.card__btn--archive`)
+        .addEventListener(`click`, this._onArchiveClick);
     this._element.querySelector(`.card__text`)
         .addEventListener(`click`, this._onTextareaClick);
     this._element.querySelector(`.card__hashtag-list`)
@@ -168,6 +200,8 @@ export default class Task extends Component {
         .removeEventListener(`click`, this._onEditButtonClick);
     this._element.querySelector(`.card__btn--favorites`)
         .removeEventListener(`click`, this._onFavoriteClick);
+    this._element.querySelector(`.card__btn--archive`)
+        .removeEventListener(`click`, this._onArchiveClick);
     this._element.querySelector(`.card__text`)
         .removeEventListener(`click`, this._onTextareaClick);
     this._element.querySelector(`.card__hashtag-list`)
@@ -182,5 +216,6 @@ export default class Task extends Component {
     this._dueDate = data.dueDate;
     this._time = data.time;
     this._isFavorite = data.isFavorite;
+    this._isDone = data.isDone;
   }
 }
