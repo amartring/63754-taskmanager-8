@@ -67,7 +67,6 @@ export default class TaskEdit extends Component {
         taskEditMapper[property](value);
       }
     }
-
     return entry;
   }
 
@@ -149,6 +148,11 @@ export default class TaskEdit extends Component {
       this._partialUpdate();
       this.bind();
     }
+
+    if (Array.from(this._tags).length >= 5) {
+      tagField.disabled = true;
+      tagField.placeholder = `You can type only 5 tags`;
+    }
   }
 
   _onTagDelete(evt) {
@@ -216,10 +220,16 @@ export default class TaskEdit extends Component {
   }
 
   // _onFreePlaceClick(evt) {
-  //   if (!this._element.contains(evt.target)) {
-  //     if (typeof this._onClose === `function`) {
-  //       this._onClose();
-  //     }
+  //   const card = document.querySelector(`.card--edit`);
+  // !document.contains(this._element) && evt.stopPropagation();
+  // if (card) {
+  // if (this._element.contains(evt.target)) {
+  // console.log(card);
+  // } else {
+  //   if (typeof this._onClose === `function`) {
+  //     this._onClose();
+  //   }
+  // }
   //   }
   // }
 
@@ -341,7 +351,6 @@ export default class TaskEdit extends Component {
                 <div class="card__hashtag-list card__hashtag-list--inner">
                 ${this._getTagsTemplate()}
                 </div>
-
                 <label>
                   <input type="text" class="card__hashtag-input" name="hashtag-input" placeholder="Type new hashtag here">
                 </label>

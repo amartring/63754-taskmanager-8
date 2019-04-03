@@ -83,6 +83,7 @@ const renderTasks = (data, container) => {
         api.deleteTask({id: item.id})
           .then(() => api.getTasks())
           .then((cards) => {
+            tasksContainer.innerHTML = ``;
             renderTasks(cards, tasksContainer);
             renderStatistic(cards);
           })
@@ -116,11 +117,6 @@ const renderTasks = (data, container) => {
     container.appendChild(taskComponent.render());
   });
 };
-
-// const clearResult = () => {
-//   const results = resultContainer.querySelectorAll(`.card`);
-//   results.forEach((it) =>resultContainer.removeChild(it));
-// };
 
 const renderFilters = (filtersData, tasksData) => {
   filtersData.forEach((item) => {
