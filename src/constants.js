@@ -27,7 +27,10 @@ export const HexColor = {
   skyblue: `#87ceeb`,
 };
 
-export const HIDDEN_CLASS = `visually-hidden`;
+export const HiddenClass = {
+  REGULAR: `visually-hidden`,
+  SEARCH: `search__input--hidden`,
+};
 
 export const VISIBLE_TASKS_NUMBER = 8;
 

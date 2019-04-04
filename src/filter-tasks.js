@@ -40,3 +40,22 @@ export const filterTasks = (data, filterName) => {
 export const filterByTag = (data, tag) => {
   return data.filter((it) => Array.from(it.tags).indexOf(tag) >= 0);
 };
+
+export const searchTasks = (data, symbol, request) => {
+  let filteredTasks = data;
+
+  switch (symbol) {
+    case `D`:
+      filteredTasks = data.filter((it) => moment(it.dueDate).format(`DD.MM.YYYY`).includes(request));
+      break;
+
+    case `#`:
+      filteredTasks = data.filter((it) => Array.from(it.tags).some((tag) => tag.includes(request)));
+      break;
+
+    default:
+      filteredTasks = data.filter((it) => it.title.toLowerCase().includes(request.toLowerCase()));
+      break;
+  }
+  return filteredTasks;
+};
